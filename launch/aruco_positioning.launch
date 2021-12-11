@@ -1,6 +1,8 @@
 <launch>
-    <include file="$(find keyboard_control_ardrone)/launch/keyboard_control_ardrone.launch">
-    </include>
+    <!-- <include file="$(find keyboard_control_tello)/launch/keyboard_control_tello.launch"> -->
+    <!-- </include> -->
+    <node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/>
+	<node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/>
 	<node pkg="aruco_positioning" type="aruco_positioning.py" name="aruco_positioning" output="screen"/>
     <node pkg="aruco_positioning" type="controller.py" name="controller" output="screen"/>
     <node pkg="aruco_positioning" type="center.py" name="center" output="screen"/>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
@@ -13,9 +13,9 @@ calib_path = ""
 camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix.txt', delimiter = ',')
 camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion.txt', delimiter = ',')
 R_flip = np.zeros((3, 3), dtype = np.float32)
-R_flip[0, 1] = -1
+R_flip[0, 0] = 1
 R_flip[1, 2] = -1
-R_flip[2, 0] = 1
+R_flip[2, 1] = 1
 font = cv2.FONT_HERSHEY_PLAIN
 
 roll_camera = 0.0
@@ -25,11 +25,16 @@ x_camera = 0.0
 y_camera = 0.0
 z_camera = 0.0
 
-aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_100)
+cmd_vel_linear_x = 0.0
+cmd_vel_linear_y = 0.0
+cmd_vel_linear_z = 0.0
+cmd_vel_angular_z = 0.0
+
+aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 parameters = aruco.DetectorParameters_create()
 board_ids = np.array([[0]], dtype = np.int32)
-# board_corners = [np.array([[0.0, 0.0, 0.1], [0.1, 0.0, 0.1], [0.1, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the bottom-left corner
-board_corners = [np.array([[0.0, 0.33, 0.33], [0.0, 0.0, 0.33], [0.0, 0.0, 0.0], [0.0, 0.33, 0.0]], dtype = np.float32)] # clockwise, beginning from the bottom-left corner
+# board_corners = [np.array([[0.0, 0.0, 0.1], [0.1, 0.0, 0.1], [0.1, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+board_corners = [np.array([[0.0, 0.0, 0.2], [0.2, 0.0, 0.2], [0.2, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
 pub_x = rospy.Publisher("/x", Float32, queue_size=10)
@@ -70,10 +75,26 @@ def rotationMatrixToEulerAngles(R):
 # '''
 #########################################################
 
+def get_cmd_vel_linear_x(data):
+    global cmd_vel_linear_x
+    cmd_vel_linear_x = data.data
+
+def get_cmd_vel_linear_y(data):
+    global cmd_vel_linear_y
+    cmd_vel_linear_y = data.data
+
+def get_cmd_vel_linear_z(data):
+    global cmd_vel_linear_z
+    cmd_vel_linear_z = data.data
+
+def get_cmd_vel_angular_z(data):
+    global cmd_vel_angular_z
+    cmd_vel_angular_z = data.data
 
 def convert_color_image(ros_image):
     global pub_x, pub_y, pub_z, pub_roll, pub_pitch, pub_yaw
     global roll_camera, pitch_camera, yaw_camera, x_camera, y_camera, z_camera
+    global cmd_vel_linear_x, cmd_vel_linear_y, cmd_vel_linear_z, cmd_vel_angular_z
     bridge = CvBridge()
     try:
         color_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
@@ -105,8 +126,10 @@ def convert_color_image(ros_image):
 
             str_position = "CAMERA Position x=%4.0f y=%4.0f z=%4.0f"%(pos_camera[0]*100, pos_camera[1]*100, pos_camera[2]*100)
             str_attitude = "CAMERA Attitude roll=%4.0f pitch=%4.0f yaw=%4.0f"%(roll_camera, pitch_camera, yaw_camera)
+            cmd_vel_drone = "x_vel = %4.3f y_vel = %4.3f z_vel = %4.3f yaw_vel = %4.3f"%(cmd_vel_linear_x, cmd_vel_linear_y, cmd_vel_linear_z, cmd_vel_angular_z)
             cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+            cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
             pub_x.publish(pos_camera[0])
             pub_y.publish(pos_camera[1])
@@ -139,7 +162,11 @@ def aruco_positioning():
     rospy.init_node("aruco_positioning", anonymous=True)
     # rospy.Subscriber("/tello/raw_image", Image, callback=convert_color_image, queue_size=10)
     # rospy.Subscriber("/usb_cam/image_raw", Image, callback=convert_color_image, queue_size=10)
-    rospy.Subscriber("/camera/color/image_raw", Image, callback=convert_color_image, queue_size=10)
+    rospy.Subscriber("/tello/camera/image_raw", Image, callback=convert_color_image, queue_size=10)
+    rospy.Subscriber("/cmd_vel_linear_x", Float32, callback=get_cmd_vel_linear_x, queue_size=10)
+    rospy.Subscriber("/cmd_vel_linear_y", Float32, callback=get_cmd_vel_linear_y, queue_size=10)
+    rospy.Subscriber("/cmd_vel_linear_z", Float32, callback=get_cmd_vel_linear_z, queue_size=10)
+    rospy.Subscriber("/cmd_vel_angular_z", Float32, callback=get_cmd_vel_angular_z, queue_size=10)
     rospy.spin()
 
 if __name__ == '__main__':

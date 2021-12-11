@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
@@ -10,6 +10,7 @@ from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 import time
+import functools
 
 x_position = 0.0
 y_position = 0.0
@@ -22,15 +23,15 @@ desired_yaw_angle = 0.0
 
 controller_on_or_off = 0.0
 
-kp_x = 2.0
-kp_y = 2.0
-kp_z = 2.0
-kp_yaw = 3.0
+kp_x = 1.5
+kp_y = 1
+kp_z = 1.5
+kp_yaw = 3
 
-kd_x = 0.1
-kd_y = 0.1
+kd_x = 0.0
+kd_y = 0.0
 kd_z = 0.0
-kd_yaw = 0.1
+kd_yaw = 0.0
 
 previous_time_x = time.time() - time.time()
 previous_time_y = time.time() - time.time()
@@ -43,7 +44,14 @@ previous_error_yaw = 0.0
 
 count = 0.0
 
-pub_vel = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+vel_max_linear = 1
+vel_max_angular = 1
+
+pub_vel = rospy.Publisher("/tello/cmd_vel", Twist, queue_size=10)
+pub_vel_x_linear = rospy.Publisher("/cmd_vel_linear_x", Float32, queue_size=10)
+pub_vel_y_linear = rospy.Publisher("/cmd_vel_linear_y", Float32, queue_size=10)
+pub_vel_z_linear = rospy.Publisher("/cmd_vel_linear_z", Float32, queue_size=10)
+pub_vel_z_angular = rospy.Publisher("/cmd_vel_angular_z", Float32, queue_size=10)
 
 def get_x_position(data):
     global x_position
@@ -96,7 +104,9 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
     global pub_vel
     global count
     global previous_time_x, previous_time_y, previous_time_z, previous_time_yaw, previous_error_x, previous_error_y, previous_error_z, previous_error_yaw
-    
+    global vel_max_linear, vel_max_angular
+    global pub_vel_x_linear, pub_vel_y_linear, pub_vel_z_linear, pub_vel_z_angular
+
     if controller_on_or_off == 1.0:
         if count == 0.0:
             yaw_a = math.radians(yaw_a)
@@ -170,13 +180,28 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
             now_error_yaw = dyaw_a - now_yaw_angle
             now_time_yaw = time.time()
 
-            vel_msg.angular.z = -(now_error_yaw * KP_YAW + ((now_error_yaw - previous_error_yaw) / (now_time_yaw - previous_time_yaw)) * KD_YAW)
+            vel_msg.angular.z = (now_error_yaw * KP_YAW + ((now_error_yaw - previous_error_yaw) / (now_time_yaw - previous_time_yaw)) * KD_YAW)
 
             previous_error_yaw = now_error_yaw
             previous_time_yaw = now_time_yaw
 
             vel_msg.angular.x = 0
-            vel_msg.angular.y = 0 
+            vel_msg.angular.y = 0
+
+            sign = functools.partial(math.copysign, 1)
+            if abs(vel_msg.linear.x) > vel_max_linear:
+                vel_msg.linear.x = sign(vel_msg.linear.x) * vel_max_linear
+            if abs(vel_msg.linear.y) > vel_max_linear:
+                vel_msg.linear.y = sign(vel_msg.linear.y) * vel_max_linear
+            if abs(vel_msg.linear.z) > vel_max_linear:
+                vel_msg.linear.z = sign(vel_msg.linear.z) * vel_max_linear
+            if abs(vel_msg.angular.z) > vel_max_angular:
+                vel_msg.angular.z = sign(vel_msg.angular.z) * vel_max_angular
+
+            pub_vel_x_linear.publish(vel_msg.linear.x)
+            pub_vel_y_linear.publish(vel_msg.linear.y)
+            pub_vel_z_linear.publish(vel_msg.linear.z)
+            pub_vel_z_angular.publish(vel_msg.angular.z)
             pub_vel.publish(vel_msg)
     else:
         vel_msg = Twist()

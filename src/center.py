@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
@@ -13,7 +13,7 @@ import time
 from std_msgs.msg import Empty as EmptyMsg
 
 rospy.init_node('center', anonymous=True)
-pub_takeoff = rospy.Publisher('/ardrone/takeoff', EmptyMsg, queue_size=10)
+pub_takeoff = rospy.Publisher('/tello/takeoff', EmptyMsg, queue_size=10)
 pub_desired_x = rospy.Publisher('/desired_x', Float32, queue_size=10)
 pub_desired_y = rospy.Publisher('/desired_y', Float32, queue_size=10)
 pub_desired_z = rospy.Publisher('/desired_z', Float32, queue_size=10)
@@ -31,8 +31,8 @@ def pub_on():
     global pub_desired_x, pub_desired_y, pub_desired_z, pub_desired_yaw, pub_control
     global rate
     while not rospy.is_shutdown():
-        pub_desired_x.publish(-2.0)
-        pub_desired_y.publish(0.0)
+        pub_desired_x.publish(0.0)
+        pub_desired_y.publish(-1.5)
         pub_desired_z.publish(0.0)
         pub_desired_yaw.publish(0.0)
         pub_control.publish(1.0)
