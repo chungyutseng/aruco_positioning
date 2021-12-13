@@ -23,11 +23,6 @@ rate = rospy.Rate(30)
 
 flag = 0
 time_old = time.time() - time.time()
-marker_detected_flag = 0.0
-
-def get_marker_detected_flag(data):
-    global marker_detected_flag
-    marker_detected_flag = data.data
 
 def takeoff():
     global pub_takeoff
@@ -38,25 +33,18 @@ def takeoff():
 def pub_on():
     global pub_desired_x, pub_desired_y, pub_desired_z, pub_desired_yaw, pub_control
     global rate
-    global marker_detected_flag
-    rospy.Subscriber("/marker_detected", Int8, callback=get_marker_detected_flag)
     while not rospy.is_shutdown():
         pub_desired_x.publish(0.0)
         pub_desired_y.publish(-1.5)
-        pub_desired_z.publish(0.1)
+        pub_desired_z.publish(0.0)
         pub_desired_yaw.publish(0.0)
-        if marker_detected_flag == 1.0:
-            pub_control.publish(1.0)
-        else:
-            pub_control.publish(0.0)
+        pub_control.publish(1.0)
         rate.sleep()
 
 def pub_on_1():
     global pub_desired_x, pub_desired_y, pub_desired_z, pub_desired_yaw, pub_control
     global rate
     global flag, time_old
-    global marker_detected_flag
-    rospy.Subscriber("/marker_detected", Int8, callback=get_marker_detected_flag)
     time_old = time.time()
     while not rospy.is_shutdown():
         time_now = time.time()

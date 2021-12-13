@@ -30,6 +30,8 @@ cmd_vel_linear_y = 0.0
 cmd_vel_linear_z = 0.0
 cmd_vel_angular_z = 0.0
 
+marker_detected_flag = 0.0
+
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 parameters = aruco.DetectorParameters_create()
 board_ids = np.array([[0]], dtype = np.int32)
@@ -43,6 +45,7 @@ pub_z = rospy.Publisher("/z", Float32, queue_size=10)
 pub_roll = rospy.Publisher("/roll", Float32, queue_size=10)
 pub_pitch = rospy.Publisher("/pitch", Float32, queue_size=10)
 pub_yaw = rospy.Publisher("/yaw", Float32, queue_size=10)
+pub_marker_detected_flag = rospy.Publisher("/marker_detected", Float32, queue_size=10)
 
 def isRotationMatrix(R):
     Rt = np.transpose(R)
@@ -95,6 +98,7 @@ def convert_color_image(ros_image):
     global pub_x, pub_y, pub_z, pub_roll, pub_pitch, pub_yaw
     global roll_camera, pitch_camera, yaw_camera, x_camera, y_camera, z_camera
     global cmd_vel_linear_x, cmd_vel_linear_y, cmd_vel_linear_z, cmd_vel_angular_z
+    global marker_detected_flag, pub_marker_detected_flag
     bridge = CvBridge()
     try:
         color_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
@@ -102,7 +106,8 @@ def convert_color_image(ros_image):
         corners, ids, rejected = aruco.detectMarkers(gray_image, aruco_dict, parameters = parameters)
 
         if len(corners) > 0:
-            
+            marker_detected_flag = 1.0
+
             retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
             # print(rvec)
             # print(tvec)
@@ -137,6 +142,11 @@ def convert_color_image(ros_image):
             pub_roll.publish(roll_camera)
             pub_pitch.publish(pitch_camera)
             pub_yaw.publish(yaw_camera)
+
+        else:
+            marker_detected_flag = 0.0
+
+        pub_marker_detected_flag.publish(marker_detected_flag)
 
         cv2.namedWindow("Color")
         cv2.imshow("Color", color_image)
