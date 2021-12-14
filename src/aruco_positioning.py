@@ -170,9 +170,9 @@ def convert_color_image(ros_image):
 
 def aruco_positioning():
     rospy.init_node("aruco_positioning", anonymous=True)
-    # rospy.Subscriber("/tello/raw_image", Image, callback=convert_color_image, queue_size=10)
+    rospy.Subscriber("/tello/raw_image", Image, callback=convert_color_image, queue_size=10)
     # rospy.Subscriber("/usb_cam/image_raw", Image, callback=convert_color_image, queue_size=10)
-    rospy.Subscriber("/tello/camera/image_raw", Image, callback=convert_color_image, queue_size=10)
+    # rospy.Subscriber("/tello/camera/image_raw", Image, callback=convert_color_image, queue_size=10)
     rospy.Subscriber("/cmd_vel_linear_x", Float32, callback=get_cmd_vel_linear_x, queue_size=10)
     rospy.Subscriber("/cmd_vel_linear_y", Float32, callback=get_cmd_vel_linear_y, queue_size=10)
     rospy.Subscriber("/cmd_vel_linear_z", Float32, callback=get_cmd_vel_linear_z, queue_size=10)

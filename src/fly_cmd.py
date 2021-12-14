@@ -4,6 +4,7 @@ from std_msgs.msg import Empty as EmptyMsg
 from geometry_msgs.msg import Twist
 import time
 from std_msgs.msg import Int8
+from std_msgs.msg import Float32
 
 pre_time = time.time() - time.time()
 
@@ -31,7 +32,7 @@ def cmd():
     global marker_detected_flag
     rospy.init_node('cmd', anonymous=True)
     rospy.Subscriber("keyboard_cmd", Int8, callback=pub_cmd)
-    rospy.Subscriber("/marker_detected", Int8, callback=get_marker_detected_flag)
+    rospy.Subscriber("/marker_detected", Float32, callback=get_marker_detected_flag)
     rate = rospy.Rate(100) # 10hz
     while not rospy.is_shutdown():
         if marker_detected_flag == 0.0:

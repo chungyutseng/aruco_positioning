@@ -39,7 +39,7 @@ def pub_on():
     global pub_desired_x, pub_desired_y, pub_desired_z, pub_desired_yaw, pub_control
     global rate
     global marker_detected_flag
-    rospy.Subscriber("/marker_detected", Int8, callback=get_marker_detected_flag)
+    rospy.Subscriber("/marker_detected", Float32, callback=get_marker_detected_flag)
     while not rospy.is_shutdown():
         pub_desired_x.publish(0.0)
         pub_desired_y.publish(-1.5)
@@ -56,7 +56,7 @@ def pub_on_1():
     global rate
     global flag, time_old
     global marker_detected_flag
-    rospy.Subscriber("/marker_detected", Int8, callback=get_marker_detected_flag)
+    rospy.Subscriber("/marker_detected", Float32, callback=get_marker_detected_flag)
     time_old = time.time()
     while not rospy.is_shutdown():
         time_now = time.time()
