@@ -23,8 +23,8 @@ desired_yaw_angle = 0.0
 
 controller_on_or_off = 0.0
 
-kp_x = 1.5
-kp_y = 1.8
+kp_x = 1
+kp_y = 1.3
 kp_z = 1.5
 kp_yaw = 3.2
 

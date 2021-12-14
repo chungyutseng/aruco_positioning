@@ -69,13 +69,13 @@ def pub_on_1():
         if flag == 0:
             pub_desired_x.publish(0.0)
             pub_desired_y.publish(-1.5)
-            pub_desired_z.publish(0.0)
+            pub_desired_z.publish(0.2)
             pub_desired_yaw.publish(0.0)
             pub_control.publish(1.0)
         if flag == 1:
             pub_desired_x.publish(0.0)
             pub_desired_y.publish(-2.0)
-            pub_desired_z.publish(0.0)
+            pub_desired_z.publish(0.2)
             pub_desired_yaw.publish(0.0)
             pub_control.publish(1.0)
         rate.sleep()
@@ -88,8 +88,8 @@ if __name__ == '__main__':
         # pub_takeoff = rospy.Publisher('/ardrone/takeoff', EmptyMsg, queue_size=10)
         # pub_takeoff.publish()
         # time.sleep(1)
-        pub_on()
-        # pub_on_1()
+        # pub_on()
+        pub_on_1()
         # pub_control = rospy.Publisher('/controller_on', Float32, queue_size=10)
         # pub_control.publish(1.0)
     except rospy.ROSInterruptException:
