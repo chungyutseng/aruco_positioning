@@ -1,11 +1,12 @@
 <launch>
     <!-- <include file="$(find keyboard_control_tello)/launch/keyboard_control_tello.launch"> -->
     <!-- </include> -->
+    <node pkg="image_transport" name="image_compressed1" type="republish" args="h264 in:=/tello/image_raw raw out:=raw_image" />
     <node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/>
 	<node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/>
 	<node pkg="aruco_positioning" type="aruco_positioning.py" name="aruco_positioning" output="screen"/>
     <node pkg="aruco_positioning" type="controller.py" name="controller" output="screen"/>
     <node pkg="aruco_positioning" type="center.py" name="center" output="screen"/>
     <node name="record_topics_for_verification" pkg="rosbag" type="record" output="screen"
-        args="-a -o data1 -x /tello/raw_image"/> 
+        args="-a -o data1 -x /raw_image"/> 
 </launch>
