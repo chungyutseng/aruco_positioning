@@ -42,8 +42,8 @@ def pub_on():
     rospy.Subscriber("/marker_detected", Float32, callback=get_marker_detected_flag)
     while not rospy.is_shutdown():
         pub_desired_x.publish(0.0)
-        pub_desired_y.publish(-1.5)
-        pub_desired_z.publish(0.1)
+        pub_desired_y.publish(-0.3)
+        pub_desired_z.publish(1.2)
         pub_desired_yaw.publish(0.0)
         if marker_detected_flag == 1.0:
             pub_control.publish(1.0)
@@ -78,19 +78,16 @@ def pub_on_1():
             pub_desired_z.publish(0.2)
             pub_desired_yaw.publish(0.0)
             pub_control.publish(1.0)
+        if marker_detected_flag == 1.0:
+            pub_control.publish(1.0)
+        else:
+            pub_control.publish(0.0)
         rate.sleep()
 
 if __name__ == '__main__':
     try:
         takeoff()
-        # pub_desired()
-        # time.sleep(5)
-        # pub_takeoff = rospy.Publisher('/ardrone/takeoff', EmptyMsg, queue_size=10)
-        # pub_takeoff.publish()
-        # time.sleep(1)
-        # pub_on()
-        pub_on_1()
-        # pub_control = rospy.Publisher('/controller_on', Float32, queue_size=10)
-        # pub_control.publish(1.0)
+        pub_on()
+        # pub_on_1()
     except rospy.ROSInterruptException:
         pass

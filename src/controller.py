@@ -12,6 +12,8 @@ from geometry_msgs.msg import Twist
 import time
 import functools
 
+rospy.init_node('controller', anonymous=True)
+
 x_position = 0.0
 y_position = 0.0
 z_position = 0.0
@@ -23,15 +25,15 @@ desired_yaw_angle = 0.0
 
 controller_on_or_off = 0.0
 
-kp_x = 1
-kp_y = 1.3
+kp_x = 1.5
+kp_y = 1.8
 kp_z = 1.5
-kp_yaw = 3.2
+kp_yaw = 2.5
 
-kd_x = 0.0
-kd_y = 0.0
-kd_z = 0.0
-kd_yaw = 0.0
+kd_x = 0.01
+kd_y = 0.01
+kd_z = 0.01
+kd_yaw = 0.01
 
 previous_time_x = time.time() - time.time()
 previous_time_y = time.time() - time.time()
@@ -52,6 +54,8 @@ pub_vel_x_linear = rospy.Publisher("/cmd_vel_linear_x", Float32, queue_size=10)
 pub_vel_y_linear = rospy.Publisher("/cmd_vel_linear_y", Float32, queue_size=10)
 pub_vel_z_linear = rospy.Publisher("/cmd_vel_linear_z", Float32, queue_size=10)
 pub_vel_z_angular = rospy.Publisher("/cmd_vel_angular_z", Float32, queue_size=10)
+
+vel_msg = Twist()
 
 def get_x_position(data):
     global x_position
@@ -106,6 +110,7 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
     global previous_time_x, previous_time_y, previous_time_z, previous_time_yaw, previous_error_x, previous_error_y, previous_error_z, previous_error_yaw
     global vel_max_linear, vel_max_angular
     global pub_vel_x_linear, pub_vel_y_linear, pub_vel_z_linear, pub_vel_z_angular
+    global vel_msg
 
     if controller_on_or_off == 1.0:
         if count == 0.0:
@@ -159,8 +164,10 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
             now_error_y = y_goal_wrt_drone - 0.0
             now_time_y = time.time()
 
-            vel_msg.linear.x = now_error_x * KP_X + ((now_error_x - previous_error_x) / (now_time_x - previous_time_x)) * KD_X
-            vel_msg.linear.y = now_error_y * KP_Y + ((now_error_y - previous_error_y) / (now_time_y - previous_time_y)) * KD_Y
+            # vel_msg.linear.x = now_error_x * KP_X + ((now_error_x - previous_error_x) / (now_time_x - previous_time_x)) * KD_X
+            # vel_msg.linear.y = now_error_y * KP_Y + ((now_error_y - previous_error_y) / (now_time_y - previous_time_y)) * KD_Y
+            vel_msg.linear.x = now_error_x * KP_X + ((now_error_x - previous_error_x) / (1.0/15)) * KD_X
+            vel_msg.linear.y = now_error_y * KP_Y + ((now_error_y - previous_error_y) / (1.0/15)) * KD_Y
 
             previous_error_x = now_error_x
             previous_error_y = now_error_y
@@ -171,7 +178,8 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
             now_error_z = dz_p - z_p
             now_time_z = time.time()
 
-            vel_msg.linear.z = now_error_z * KP_Z + ((now_error_z - previous_error_z) / (now_time_z - previous_time_z)) * KD_Z
+            # vel_msg.linear.z = now_error_z * KP_Z + ((now_error_z - previous_error_z) / (now_time_z - previous_time_z)) * KD_Z
+            vel_msg.linear.z = now_error_z * KP_Z + ((now_error_z - previous_error_z) / (1.0/15)) * KD_Z
 
             previous_error_z = now_error_z
             previous_time_z = now_time_z
@@ -180,7 +188,8 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
             now_error_yaw = dyaw_a - now_yaw_angle
             now_time_yaw = time.time()
 
-            vel_msg.angular.z = (now_error_yaw * KP_YAW + ((now_error_yaw - previous_error_yaw) / (now_time_yaw - previous_time_yaw)) * KD_YAW)
+            # vel_msg.angular.z = (now_error_yaw * KP_YAW + ((now_error_yaw - previous_error_yaw) / (now_time_yaw - previous_time_yaw)) * KD_YAW)
+            vel_msg.angular.z = (now_error_yaw * KP_YAW + ((now_error_yaw - previous_error_yaw) / (1.0/15)) * KD_YAW)
 
             previous_error_yaw = now_error_yaw
             previous_time_yaw = now_time_yaw
@@ -202,7 +211,7 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
             pub_vel_y_linear.publish(vel_msg.linear.y)
             pub_vel_z_linear.publish(vel_msg.linear.z)
             pub_vel_z_angular.publish(vel_msg.angular.z)
-            pub_vel.publish(vel_msg)
+            # pub_vel.publish(vel_msg)
     else:
         vel_msg = Twist()
         vel_msg.linear.x = 0.0
@@ -211,23 +220,43 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
         vel_msg.angular.x = 0.0
         vel_msg.angular.y = 0.0
         vel_msg.angular.z = 0.0
-        pub_vel.publish(vel_msg)
+        # pub_vel.publish(vel_msg)
 
-def control():
-    rospy.Subscriber("/x", Float32, callback=get_x_position)
-    rospy.Subscriber("/y", Float32, callback=get_y_position)
-    rospy.Subscriber("/z", Float32, callback=get_z_position)
-    rospy.Subscriber("/pitch", Float32, callback=get_yaw_angle)
-    rospy.Subscriber("/desired_x", Float32, callback=get_desired_x_position)
-    rospy.Subscriber("/desired_y", Float32, callback=get_desired_y_position)
-    rospy.Subscriber("/desired_z", Float32, callback=get_desired_z_position)
-    rospy.Subscriber("/desired_yaw", Float32, callback=get_desired_yaw_angle)
-    rospy.Subscriber("/controller_on", Float32, callback=controller_on)
-    rospy.spin()
+rospy.Subscriber("/x", Float32, callback=get_x_position)
+rospy.Subscriber("/y", Float32, callback=get_y_position)
+rospy.Subscriber("/z", Float32, callback=get_z_position)
+rospy.Subscriber("/pitch", Float32, callback=get_yaw_angle)
+rospy.Subscriber("/desired_x", Float32, callback=get_desired_x_position)
+rospy.Subscriber("/desired_y", Float32, callback=get_desired_y_position)
+rospy.Subscriber("/desired_z", Float32, callback=get_desired_z_position)
+rospy.Subscriber("/desired_yaw", Float32, callback=get_desired_yaw_angle)
+rospy.Subscriber("/controller_on", Float32, callback=controller_on)
 
-if __name__ == '__main__':
-    try:
-        rospy.init_node('controller', anonymous=True)
-        control()
-    except rospy.ROSInterruptException:
-        pass
+while not rospy.is_shutdown():
+    rate = rospy.Rate(15)
+    pub_vel.publish(vel_msg)
+    rate.sleep()
+
+
+
+# x = -0.7
+# z = 1.0
+# y = 1.5-0.424
+
+# test2
+# kp_x = 1.5
+# kp_y = 1.8
+# kp_z = 1.5
+# kp_yaw = 3.2
+# pub_desired_x.publish(0.0)
+# pub_desired_y.publish(0.0)
+# pub_desired_z.publish(1.2)
+
+# test3
+# kp_x = 1.5
+# kp_y = 1.8
+# kp_z = 1.5
+# kp_yaw = 2.5
+# pub_desired_x.publish(0.0)
+# pub_desired_y.publish(-0.3)
+# pub_desired_z.publish(1.2)
