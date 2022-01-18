@@ -9,7 +9,8 @@
     <node pkg="aruco_positioning" type="center.py" name="center" output="screen"/>
     <node pkg="aruco_positioning" type="detect_target.py" name="detect_target" output="screen"/>
     <node pkg="aruco_positioning" type="calculate_target_pose.py" name="calculate_target_pose" output="screen"/>
-    <node pkg="aruco_positioning" type="imu.py" name="imu" output="screen"/>
+    <node pkg="aruco_positioning" type="repub_imu.py" name="repub_imu" output="screen"/>
+    <node pkg="aruco_positioning" type="kf.py" name="kf" output="screen"/>
     <node name="record_topics_for_verification" pkg="rosbag" type="record" output="screen"
         args="-a -o data1 -x /raw_image"/> 
 </launch>
