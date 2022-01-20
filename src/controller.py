@@ -25,13 +25,13 @@ desired_yaw_angle = 0.0
 
 controller_on_or_off = 0.0
 
-kp_x = 1.5
-kp_y = 1.8
+kp_x = 1.2
+kp_y = 1.5
 kp_z = 1.5
 kp_yaw = 2.5
 
-kd_x = 0.0
-kd_y = 0.0
+kd_x = 0.05
+kd_y = 0
 kd_z = 0.0
 kd_yaw = 0.0
 
@@ -70,14 +70,15 @@ vel_msg = Twist()
 #     z_position = data.data
 
 def get_kf_position(data):
-    global x_position, y_position, z_position
+    global x_position, y_position, z_position, yaw_angle
     x_position = data.linear.x
     y_position = data.linear.y
     z_position = data.linear.z
+    yaw_angle = data.angular.z
 
-def get_yaw_angle(data):
-    global yaw_angle
-    yaw_angle = data.data
+# def get_yaw_angle(data):
+#     global yaw_angle
+#     yaw_angle = data.data
 
 def get_desired_x_position(data):
     global desired_x_position
@@ -232,7 +233,7 @@ def pd_controller(x_p, y_p, z_p, yaw_a, dx_p, dy_p, dz_p, dyaw_a, KP_X, KP_Y, KP
 # rospy.Subscriber("/y", Float32, callback=get_y_position)
 # rospy.Subscriber("/z", Float32, callback=get_z_position)
 rospy.Subscriber("/tello_pose_kf", Twist, callback=get_kf_position)
-rospy.Subscriber("/pitch", Float32, callback=get_yaw_angle)
+# rospy.Subscriber("/pitch", Float32, callback=get_yaw_angle)
 rospy.Subscriber("/desired_x", Float32, callback=get_desired_x_position)
 rospy.Subscriber("/desired_y", Float32, callback=get_desired_y_position)
 rospy.Subscriber("/desired_z", Float32, callback=get_desired_z_position)

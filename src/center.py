@@ -68,14 +68,14 @@ def pub_on_1():
             time_old = time_now
         if flag == 0:
             pub_desired_x.publish(0.0)
-            pub_desired_y.publish(-1.5)
-            pub_desired_z.publish(0.2)
+            pub_desired_y.publish(0.0)
+            pub_desired_z.publish(1.2)
             pub_desired_yaw.publish(0.0)
             pub_control.publish(1.0)
         if flag == 1:
             pub_desired_x.publish(0.0)
-            pub_desired_y.publish(-2.0)
-            pub_desired_z.publish(0.2)
+            pub_desired_y.publish(-1.3)
+            pub_desired_z.publish(1.2)
             pub_desired_yaw.publish(0.0)
             pub_control.publish(1.0)
         if marker_detected_flag == 1.0:
