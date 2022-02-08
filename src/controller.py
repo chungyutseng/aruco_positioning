@@ -18,8 +18,8 @@ rospy.init_node('controller', anonymous=True)
 
 rate = rospy.Rate(15)
 
-current_pose = np.zeros((6,), dtype=np.float32)
-desired_pose = np.zeros((6,), dtype=np.float32)
+current_pose = np.zeros((10,), dtype=np.float32)
+desired_pose = np.zeros((4,), dtype=np.float32)
 
 kp_x = 1.0
 kp_y = 1.2
