@@ -29,7 +29,7 @@ rate = rospy.Rate(15)
 
 # x, y, z, and yaw
 # x, y, z in meter; yaw in degrees
-tello_pose_kf = np.zeros((4,), dtype=np.float32)
+tello_pose_kf = np.zeros((10,), dtype=np.float32)
 
 pub_pose_kf = rospy.Publisher('/tello_pose_kf', numpy_msg(Floats), queue_size=10)
 
@@ -204,5 +204,11 @@ while not rospy.is_shutdown():
     tello_pose_kf[1] = drone_y.X[0, 0]
     tello_pose_kf[2] = drone_z.X[0, 0]
     tello_pose_kf[3] = drone_yaw.X_yaw[0, 0]
+    tello_pose_kf[4] = drone_x.X[1, 0] # x velocity
+    tello_pose_kf[5] = drone_x.X[2, 0] # x velocity drift
+    tello_pose_kf[6] = drone_y.X[1, 0] # y velocity
+    tello_pose_kf[7] = drone_y.X[2, 0] # y velocity drift
+    tello_pose_kf[8] = drone_z.X[1, 0] # z velocity
+    tello_pose_kf[9] = drone_z.X[2, 0] # z velocity drift
     pub_pose_kf.publish(tello_pose_kf)
     rate.sleep()
