@@ -10,6 +10,10 @@ from std_msgs.msg import Float32
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 
+rospy.init_node("detect_target", anonymous=True)
+
+rate = rospy.Rate(15)
+
 camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix.txt', delimiter = ',')
 camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion.txt', delimiter = ',')
 
@@ -25,8 +29,6 @@ target_detected_flag = 0.0
 
 pub_target_detected_flag = rospy.Publisher("/target_detected", Float32, queue_size=10)
 pub_transformation_array_target = rospy.Publisher('/transformation_array_target', numpy_msg(Floats), queue_size=10)
-
-rospy.init_node("detect_target", anonymous=True)
 
 def convert_color_image(ros_image):
     global transformation_array_t2c
@@ -76,6 +78,5 @@ def convert_color_image(ros_image):
 rospy.Subscriber("/raw_image", Image, callback=convert_color_image, queue_size=10)
 
 while not rospy.is_shutdown():
-    rate = rospy.Rate(15)
     pub_target_detected_flag.publish(target_detected_flag)
     pub_transformation_array_target.publish(transformation_array_t2c)
