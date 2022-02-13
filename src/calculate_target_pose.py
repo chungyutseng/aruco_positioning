@@ -110,9 +110,9 @@ def get_target_detected_flag(data):
         # target_pitch = math.degrees(target_pitch)
         # target_yaw = math.degrees(target_yaw)
 
-rospy.Subscriber('/transformation_array_positioning', numpy_msg(Floats), callback=get_transformation_array_positioning, queue_size=10)
-rospy.Subscriber('/transformation_array_target', numpy_msg(Floats), callback=get_transformation_array_target, queue_size=10)
-rospy.Subscriber('/target_detected', Float32, callback=get_target_detected_flag, queue_size=10)
+rospy.Subscriber('/transformation_array_positioning', numpy_msg(Floats), callback=get_transformation_array_positioning)
+rospy.Subscriber('/transformation_array_target', numpy_msg(Floats), callback=get_transformation_array_target)
+rospy.Subscriber('/target_detected', Float32, callback=get_target_detected_flag)
 
 while not rospy.is_shutdown():
     if (target_pose[3, 3] != 0):

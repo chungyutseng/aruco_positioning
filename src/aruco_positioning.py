@@ -51,12 +51,13 @@ transformation_array_c2m = np.zeros((16,), dtype=np.float32)
 
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 parameters = aruco.DetectorParameters_create()
+
+board_ids = np.array([[0]], dtype = np.int32)
+board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+
 # board_ids = np.array([[0], [1]], dtype = np.int32)
-# board_corners = [np.array([[0.0, 1.5, marker_height + marker_size], [marker_size, 1.5, marker_height + marker_size], [marker_size, 1.5, marker_height], [0.0, 1.5, marker_height]], dtype = np.float32), 
-#                 np.array([[marker_size + marker_offset, 1.5, marker_height + marker_size], [2 * marker_size + marker_offset, 1.5, marker_height + marker_size], [2 * marker_size + marker_offset, 1.5, marker_height], [marker_size + marker_offset, 1.5, marker_height]], dtype = np.float32)] # clockwise, beginning from the top-left corner
-board_ids = np.array([[0], [1]], dtype = np.int32)
-board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
-                np.array([[0.28155, 1.5, 1.2], [0.48155, 1.5, 1.2], [0.48155, 1.5, 1.0], [0.28155, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+# board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
+#                 np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
 # pub_x = rospy.Publisher("/x", Float32, queue_size=10)
@@ -136,7 +137,8 @@ def convert_color_image(ros_image):
         if ids is None:
             ids = np.array([[-1], [-1]], dtype=np.float32)
 
-        if (np.any(ids[:] == 0) or np.any(ids[:] == 1)):
+        if (np.any(ids[:] == 0)):
+        # if (np.any(ids[:] == 0) or np.any(ids[:] == 1)):
             marker_detected_flag = 1.0
 
             retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
@@ -159,7 +161,7 @@ def convert_color_image(ros_image):
             transformation_array_c2m[8] = R_tc[2, 0]
             transformation_array_c2m[9] = R_tc[2, 1]
             transformation_array_c2m[10] = R_tc[2, 2]
-            transformation_array_c2m[11] = pos_camera[2] - marker_height
+            transformation_array_c2m[11] = pos_camera[2] - 1.0
 
             transformation_array_c2m[12] = 0.0
             transformation_array_c2m[13] = 0.0

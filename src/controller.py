@@ -24,13 +24,13 @@ desired_pose = np.zeros((4,), dtype=np.float32)
 kp_x = 1.0
 kp_y = 1.2
 kp_z = 1.2
-kp_yaw = 1.5
+kp_yaw = 1.0
 kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
 
-kd_x = 0.01
-kd_y = 0.01
-kd_z = 0.01
-kd_yaw = 0.01
+kd_x = 0.0
+kd_y = 0.0
+kd_z = 0.0
+kd_yaw = 0.0
 kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
 # x_position = 0.0
@@ -75,6 +75,7 @@ pub_vel = rospy.Publisher("/tello/cmd_vel", Twist, queue_size=10)
 # pub_vel_z_angular = rospy.Publisher("/cmd_vel_angular_z", Float32, queue_size=10)
 
 vel_msg = Twist()
+VO_on_off = 0.0
 
 # def get_x_position(data):
 #     global x_position
@@ -106,6 +107,10 @@ def get_kf_position(data):
 def get_desired_pose(data):
     global desired_pose
     desired_pose = data.data
+
+def get_VO_on_off(data):
+    global VO_on_off
+    VO_on_off = data.data
 
 # def get_desired_x_position(data):
 #     global desired_x_position
@@ -370,10 +375,12 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
 
 rospy.Subscriber('/tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
 rospy.Subscriber('/desired_pose', numpy_msg(Floats), callback=get_desired_pose)
+rospy.Subscriber('/VO_on_off', Float32, callback=get_VO_on_off)
 
 while not rospy.is_shutdown():
     pd_controller(current_pose, desired_pose, kp, kd)
-    pub_vel.publish(vel_msg)
+    if (VO_on_off == 1.0):
+        pub_vel.publish(vel_msg)
     rate.sleep()
 
 

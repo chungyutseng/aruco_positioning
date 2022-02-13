@@ -29,7 +29,8 @@ rate = rospy.Rate(15)
 
 # x, y, z, and yaw
 # x, y, z in meter; yaw in degrees
-tello_pose_kf = np.zeros((10,), dtype=np.float32)
+tello_pose_kf = np.zeros((13,), dtype=np.float32)
+temp_imu = np.zeros((6,), dtype=np.float32)
 
 pub_pose_kf = rospy.Publisher('/tello_pose_kf', numpy_msg(Floats), queue_size=10)
 
@@ -43,13 +44,31 @@ dt = 1.0/15
 A = np.array([[1.0, dt, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], dtype = np.float32)
 C_position = np.array([1.0, 0.0, 0.0], dtype = np.float32).reshape(1, 3)
 C_velocity = np.array([0.0, 1.0, 1.0], dtype = np.float32).reshape(1, 3)
-Q_x = 0.1 * np.identity(3)
+
+# Q_x = 0.1 * np.identity(3)
+Q_x_pos = 0.01
+Q_x_vel = 0.01
+Q_x_vel_drift = 0.0001
+Q_x = np.array([[Q_x_pos, 0.0, 0.0], [0.0, Q_x_vel, 0.0], [0.0, 0.0, Q_x_vel_drift]], dtype = np.float32)
+
 R_position_x = 1.5
 R_velocity_x = 1
-Q_y = 0.1 * np.identity(3)
+
+# Q_y = 0.1 * np.identity(3)
+Q_y_pos = 0.01
+Q_y_vel = 0.01
+Q_y_vel_drift = 0.0001
+Q_y = np.array([[Q_y_pos, 0.0, 0.0], [0.0, Q_y_vel, 0.0], [0.0, 0.0, Q_y_vel_drift]], dtype = np.float32)
+
 R_position_y = 1
 R_velocity_y = 1
-Q_z = 0.1 * np.identity(3)
+
+# Q_z = 0.1 * np.identity(3)
+Q_z_pos = 0.001
+Q_z_vel = 0.001
+Q_z_vel_drift = 0.0000001
+Q_z = np.array([[Q_z_pos, 0.0, 0.0], [0.0, Q_z_vel, 0.0], [0.0, 0.0, Q_z_vel_drift]], dtype = np.float32)
+
 R_position_z = 1.5
 R_velocity_z = 1
 
@@ -62,7 +81,7 @@ X = np.zeros((3, 1), dtype = np.float32)
 A_yaw = np.array([[1.0, dt], [0.0, 1.0]], dtype = np.float32)
 C_yaw = np.array([1.0, 0.0], dtype = np.float32).reshape(1, 2)
 Q_yaw = 0.1 * np.identity(2)
-R_yaw_marker = 1.5
+R_yaw_marker = 2.5
 R_yaw_imu = 1
 
 P_yaw = 0.2 * np.identity(2)
@@ -147,7 +166,8 @@ drone_yaw = Kalman_filter_yaw(Q_yaw, R_yaw_marker, R_yaw_imu, P_yaw, X_yaw)
 
 def get_imu_message(imu_msg):
     global drone_x, drone_y, drone_z, drone_yaw
-    temp = imu_msg.data
+    global temp_imu
+    temp_imu = imu_msg.data
     drone_x.correction()
     drone_y.correction()
     drone_z.correction()
@@ -159,10 +179,10 @@ def get_imu_message(imu_msg):
     # drone_y.update_v(imu_msg.linear.y)
     # drone_z.update_v(imu_msg.linear.z)
     # drone_yaw.update_yaw_imu(imu_msg.angular.x)
-    drone_x.update_v(temp[0])
-    drone_y.update_v(temp[1])
-    drone_z.update_v(temp[2])
-    drone_yaw.update_yaw_imu(temp[3])
+    drone_x.update_v(temp_imu[0])
+    drone_y.update_v(temp_imu[1])
+    drone_z.update_v(temp_imu[2])
+    drone_yaw.update_yaw_imu(temp_imu[3])
 
 def get_marker_message(marker_msg):
     global drone_x, drone_y, drone_z, drone_yaw
@@ -210,5 +230,8 @@ while not rospy.is_shutdown():
     tello_pose_kf[7] = drone_y.X[2, 0] # y velocity drift
     tello_pose_kf[8] = drone_z.X[1, 0] # z velocity
     tello_pose_kf[9] = drone_z.X[2, 0] # z velocity drift
+    tello_pose_kf[10] = temp_imu[0]
+    tello_pose_kf[11] = temp_imu[1]
+    tello_pose_kf[12] = temp_imu[2]
     pub_pose_kf.publish(tello_pose_kf)
     rate.sleep()

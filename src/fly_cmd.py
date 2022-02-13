@@ -10,7 +10,7 @@ pre_time = time.time() - time.time()
 
 pub_takeoff = rospy.Publisher('/tello/takeoff', EmptyMsg, queue_size=1)
 pub_land = rospy.Publisher('/tello/land', EmptyMsg, queue_size=1)
-pub_vel_cmd = rospy.Publisher('/tello/cmd_vel', Twist, queue_size=1)
+pub_vel_cmd = rospy.Publisher('/tello/cmd_vel_QQQQQ', Twist, queue_size=1)
 
 command = 0
 
