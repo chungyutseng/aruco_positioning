@@ -10,6 +10,7 @@ from std_msgs.msg import Float32
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 from geometry_msgs.msg import Twist
+from tello_driver.msg import TelloStatus
 
 rospy.init_node("aruco_positioning", anonymous=True)
 
@@ -52,12 +53,14 @@ transformation_array_c2m = np.zeros((16,), dtype=np.float32)
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 parameters = aruco.DetectorParameters_create()
 
-board_ids = np.array([[0]], dtype = np.int32)
-board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+# board_ids = np.array([[0]], dtype = np.int32)
+# board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
-# board_ids = np.array([[0], [1]], dtype = np.int32)
-# board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
-#                 np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
+board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
+                np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
+                np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
+                np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
 # pub_x = rospy.Publisher("/x", Float32, queue_size=10)
@@ -106,6 +109,9 @@ def get_cmd_vel(data):
     global cmd_vel
     cmd_vel = data
 
+# def get_status(data):
+
+
 # def get_cmd_vel_linear_x(data):
 #     global cmd_vel_linear_x
 #     cmd_vel_linear_x = data.data
@@ -137,8 +143,8 @@ def convert_color_image(ros_image):
         if ids is None:
             ids = np.array([[-1], [-1]], dtype=np.float32)
 
-        if (np.any(ids[:] == 0)):
-        # if (np.any(ids[:] == 0) or np.any(ids[:] == 1)):
+        # if (np.any(ids[:] == 0)):
+        if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
             marker_detected_flag = 1.0
 
             retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
@@ -215,8 +221,9 @@ def convert_color_image(ros_image):
     except CvBridgeError as e:
         print(e)
 
-rospy.Subscriber("/raw_image", Image, callback=convert_color_image, queue_size=10)
+rospy.Subscriber("/raw_image", Image, callback=convert_color_image)
 rospy.Subscriber("/tello/cmd_vel", Twist, callback=get_cmd_vel)
+# rospy.Subscriber("/tello/status", TelloStatus, callback=get_status)
 # rospy.Subscriber("/cmd_vel_linear_x", Float32, callback=get_cmd_vel_linear_x, queue_size=10)
 # rospy.Subscriber("/cmd_vel_linear_y", Float32, callback=get_cmd_vel_linear_y, queue_size=10)
 # rospy.Subscriber("/cmd_vel_linear_z", Float32, callback=get_cmd_vel_linear_z, queue_size=10)

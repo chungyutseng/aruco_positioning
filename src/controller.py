@@ -24,13 +24,13 @@ desired_pose = np.zeros((4,), dtype=np.float32)
 kp_x = 1.0
 kp_y = 1.2
 kp_z = 1.2
-kp_yaw = 1.0
+kp_yaw = 1.5
 kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
 
-kd_x = 0.0
-kd_y = 0.0
-kd_z = 0.0
-kd_yaw = 0.0
+kd_x = 0.1
+kd_y = 0.1
+kd_z = 0.01
+kd_yaw = 0.1
 kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
 # x_position = 0.0

@@ -75,7 +75,7 @@ def convert_color_image(ros_image):
     except CvBridgeError as e:
         print(e)
 
-rospy.Subscriber("/raw_image", Image, callback=convert_color_image, queue_size=10)
+rospy.Subscriber("/raw_image", Image, callback=convert_color_image)
 
 while not rospy.is_shutdown():
     pub_target_detected_flag.publish(target_detected_flag)
