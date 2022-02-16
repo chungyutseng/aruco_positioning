@@ -28,7 +28,7 @@ R_flip = np.zeros((3, 3), dtype = np.float32)
 R_flip[0, 0] = 1
 R_flip[1, 2] = -1
 R_flip[2, 1] = 1
-font = cv2.FONT_HERSHEY_PLAIN
+font = cv2.FONT_HERSHEY_TRIPLEX
 
 tello_pose_marker = np.zeros((6,), dtype=np.float32)
 
@@ -49,6 +49,14 @@ cmd_vel = Twist()
 marker_detected_flag = 0.0
 
 transformation_array_c2m = np.zeros((16,), dtype=np.float32)
+
+battery_percentage = 0.0
+
+img_append = cv2.imread("append.png")
+img_append = cv2.resize(img_append, (300, 720), interpolation=cv2.INTER_AREA)
+
+current_pose = np.zeros((10,), dtype=np.float32)
+desired_pose = np.zeros((4,), dtype=np.float32)
 
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 parameters = aruco.DetectorParameters_create()
@@ -73,6 +81,18 @@ pub_marker_detected_flag = rospy.Publisher("/marker_detected", Float32, queue_si
 pub_transformation_array_positioning = rospy.Publisher('/transformation_array_positioning', numpy_msg(Floats), queue_size=10)
 pub_pose_marker = rospy.Publisher('/tello_pose_marker', numpy_msg(Floats), queue_size=10)
 # pub_pose_marker = rospy.Publisher('/tello_pose_marker', Twist, queue_size=10)
+
+def get_desired_pose(data):
+    global desired_pose
+    desired_pose = data.data
+
+def get_kf_position(data):
+    global current_pose
+    current_pose = data.data
+
+def get_battery_percentage(data):
+    global battery_percentage
+    battery_percentage = data.battery_percentage
 
 def isRotationMatrix(R):
     Rt = np.transpose(R)
@@ -109,8 +129,9 @@ def get_cmd_vel(data):
     global cmd_vel
     cmd_vel = data
 
-# def get_status(data):
-
+def get_battery_percentage(data):
+    global battery_percentage
+    battery_percentage = data.battery_percentage
 
 # def get_cmd_vel_linear_x(data):
 #     global cmd_vel_linear_x
@@ -137,6 +158,9 @@ def convert_color_image(ros_image):
     bridge = CvBridge()
     try:
         color_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
+
+        color_image_append = np.hstack((color_image, img_append))
+
         gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
         corners, ids, rejected = aruco.detectMarkers(gray_image, aruco_dict, parameters = parameters)
 
@@ -204,6 +228,25 @@ def convert_color_image(ros_image):
             cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
+            x_position_str = "x = %4.3f"%(current_pose[0]*100)
+            y_position_str = "y = %4.3f"%(current_pose[1]*100)
+            z_position_str = "z = %4.3f"%(current_pose[2]*100)
+            yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
+            cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
+            d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
+            d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
+            d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
+            d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
+            cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
         else:
             marker_detected_flag = 0.0
             transformation_array_c2m = np.zeros((16,), dtype=np.float32)
@@ -214,6 +257,25 @@ def convert_color_image(ros_image):
             cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
+            x_position_str = "x = %4.3f"%(current_pose[0]*100)
+            y_position_str = "y = %4.3f"%(current_pose[1]*100)
+            z_position_str = "z = %4.3f"%(current_pose[2]*100)
+            yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
+            cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
+            d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
+            d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
+            d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
+            d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
+            cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+            cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
         cv2.namedWindow("Color")
         cv2.imshow("Color", color_image)
         cv2.waitKey(10)
@@ -223,7 +285,9 @@ def convert_color_image(ros_image):
 
 rospy.Subscriber("/raw_image", Image, callback=convert_color_image)
 rospy.Subscriber("/tello/cmd_vel", Twist, callback=get_cmd_vel)
-# rospy.Subscriber("/tello/status", TelloStatus, callback=get_status)
+rospy.Subscriber("/tello/status", TelloStatus, callback=get_battery_percentage)
+rospy.Subscriber('/tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
+rospy.Subscriber('/desired_pose', numpy_msg(Floats), callback=get_desired_pose)
 # rospy.Subscriber("/cmd_vel_linear_x", Float32, callback=get_cmd_vel_linear_x, queue_size=10)
 # rospy.Subscriber("/cmd_vel_linear_y", Float32, callback=get_cmd_vel_linear_y, queue_size=10)
 # rospy.Subscriber("/cmd_vel_linear_z", Float32, callback=get_cmd_vel_linear_z, queue_size=10)
