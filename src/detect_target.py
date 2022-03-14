@@ -27,8 +27,8 @@ board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
 target_detected_flag = 0.0
 
-pub_target_detected_flag = rospy.Publisher("/target_detected", Float32, queue_size=10)
-pub_transformation_array_target = rospy.Publisher('/transformation_array_target', numpy_msg(Floats), queue_size=10)
+pub_target_detected_flag = rospy.Publisher("target_detected", Float32, queue_size=10)
+pub_transformation_array_target = rospy.Publisher('transformation_array_target', numpy_msg(Floats), queue_size=10)
 
 def convert_color_image(ros_image):
     global transformation_array_t2c
@@ -75,7 +75,7 @@ def convert_color_image(ros_image):
     except CvBridgeError as e:
         print(e)
 
-rospy.Subscriber("/raw_image", Image, callback=convert_color_image)
+rospy.Subscriber("raw_image", Image, callback=convert_color_image)
 
 while not rospy.is_shutdown():
     pub_target_detected_flag.publish(target_detected_flag)

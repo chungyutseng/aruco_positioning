@@ -22,9 +22,9 @@ current_pose = np.zeros((10,), dtype=np.float32)
 desired_pose = np.zeros((4,), dtype=np.float32)
 
 kp_x = 1.0
-kp_y = 1.2
-kp_z = 1.2
-kp_yaw = 1.5
+kp_y = 1.0
+kp_z = 1.0
+kp_yaw = 1.0
 kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
 
 kd_x = 0.1
@@ -68,7 +68,7 @@ count = 0.0
 vel_max_linear = 0.5
 vel_max_angular = 0.8
 
-pub_vel = rospy.Publisher("/tello/cmd_vel", Twist, queue_size=10)
+pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
 # pub_vel_x_linear = rospy.Publisher("/cmd_vel_linear_x", Float32, queue_size=10)
 # pub_vel_y_linear = rospy.Publisher("/cmd_vel_linear_y", Float32, queue_size=10)
 # pub_vel_z_linear = rospy.Publisher("/cmd_vel_linear_z", Float32, queue_size=10)
@@ -373,9 +373,9 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
 # rospy.Subscriber("/desired_yaw", Float32, callback=get_desired_yaw_angle)
 # rospy.Subscriber("/controller_on", Float32, callback=controller_on)
 
-rospy.Subscriber('/tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
-rospy.Subscriber('/desired_pose', numpy_msg(Floats), callback=get_desired_pose)
-rospy.Subscriber('/VO_on_off', Float32, callback=get_VO_on_off)
+rospy.Subscriber('tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
+rospy.Subscriber('desired_pose', numpy_msg(Floats), callback=get_desired_pose)
+rospy.Subscriber('VO_on_off', Float32, callback=get_VO_on_off)
 
 while not rospy.is_shutdown():
     pd_controller(current_pose, desired_pose, kp, kd)

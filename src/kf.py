@@ -32,7 +32,7 @@ rate = rospy.Rate(15)
 tello_pose_kf = np.zeros((13,), dtype=np.float32)
 temp_imu = np.zeros((6,), dtype=np.float32)
 
-pub_pose_kf = rospy.Publisher('/tello_pose_kf', numpy_msg(Floats), queue_size=10)
+pub_pose_kf = rospy.Publisher('tello_pose_kf', numpy_msg(Floats), queue_size=10)
 
 dt = 1.0/15
 
@@ -203,8 +203,8 @@ def get_marker_message(marker_msg):
 # rospy.Subscriber("/repub_imu", ImuMsg, callback=get_imu_message, queue_size=10)
 # rospy.Subscriber("/repub_imu", Twist, callback=get_imu_message, queue_size=10)
 # rospy.Subscriber("/tello_pose_marker", Twist, callback=get_marker_message, queue_size=10)
-rospy.Subscriber("/repub_imu", numpy_msg(Floats), callback=get_imu_message)
-rospy.Subscriber("/tello_pose_marker", numpy_msg(Floats), callback=get_marker_message)
+rospy.Subscriber("repub_imu", numpy_msg(Floats), callback=get_imu_message)
+rospy.Subscriber("tello_pose_marker", numpy_msg(Floats), callback=get_marker_message)
 
 while not rospy.is_shutdown():
     drone_x.correction()

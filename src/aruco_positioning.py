@@ -52,7 +52,7 @@ transformation_array_c2m = np.zeros((16,), dtype=np.float32)
 
 battery_percentage = 0.0
 
-img_append = cv2.imread("append.png")
+img_append = cv2.imread("/home/chungyu/.ros/append.png")
 img_append = cv2.resize(img_append, (300, 720), interpolation=cv2.INTER_AREA)
 
 current_pose = np.zeros((10,), dtype=np.float32)
@@ -64,11 +64,16 @@ parameters = aruco.DetectorParameters_create()
 # board_ids = np.array([[0]], dtype = np.int32)
 # board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
-board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
-board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
-                np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
-                np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
-                np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+# board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
+# board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
+#                 np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
+#                 np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
+#                 np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+
+board_ids = np.array([[10], [11]], dtype = np.int32)
+board_corners = [np.array([[0.0, 0.0, 0.07], [0.07, 0.0, 0.07], [0.07, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32), 
+                 np.array([[0.073, 0.0, 0.07], [0.143, 0.0, 0.07], [0.143, 0.0, 0.0], [0.073, 0.0, 0.0]], dtype = np.float32),] # clockwise, beginning from the top-left corner
+
 board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
 # pub_x = rospy.Publisher("/x", Float32, queue_size=10)
@@ -77,9 +82,9 @@ board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 # pub_roll = rospy.Publisher("/roll", Float32, queue_size=10)
 # pub_pitch = rospy.Publisher("/pitch", Float32, queue_size=10)
 # pub_yaw = rospy.Publisher("/yaw", Float32, queue_size=10)
-pub_marker_detected_flag = rospy.Publisher("/marker_detected", Float32, queue_size=10)
-pub_transformation_array_positioning = rospy.Publisher('/transformation_array_positioning', numpy_msg(Floats), queue_size=10)
-pub_pose_marker = rospy.Publisher('/tello_pose_marker', numpy_msg(Floats), queue_size=10)
+pub_marker_detected_flag = rospy.Publisher("marker_detected", Float32, queue_size=10)
+pub_transformation_array_positioning = rospy.Publisher('transformation_array_positioning', numpy_msg(Floats), queue_size=10)
+pub_pose_marker = rospy.Publisher('tello_pose_marker', numpy_msg(Floats), queue_size=10)
 # pub_pose_marker = rospy.Publisher('/tello_pose_marker', Twist, queue_size=10)
 
 def get_desired_pose(data):
@@ -168,7 +173,8 @@ def convert_color_image(ros_image):
             ids = np.array([[-1], [-1]], dtype=np.float32)
 
         # if (np.any(ids[:] == 0)):
-        if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
+        # if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
+        if (np.any(ids[:] == 10) or np.any(ids[:] == 11)):
             marker_detected_flag = 1.0
 
             retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
@@ -277,17 +283,17 @@ def convert_color_image(ros_image):
             cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
 
         cv2.namedWindow("Color")
-        cv2.imshow("Color", color_image)
+        cv2.imshow("Color", color_image_append)
         cv2.waitKey(10)
         
     except CvBridgeError as e:
         print(e)
 
-rospy.Subscriber("/raw_image", Image, callback=convert_color_image)
-rospy.Subscriber("/tello/cmd_vel", Twist, callback=get_cmd_vel)
-rospy.Subscriber("/tello/status", TelloStatus, callback=get_battery_percentage)
-rospy.Subscriber('/tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
-rospy.Subscriber('/desired_pose', numpy_msg(Floats), callback=get_desired_pose)
+rospy.Subscriber("raw_image", Image, callback=convert_color_image)
+rospy.Subscriber("tello/cmd_vel", Twist, callback=get_cmd_vel)
+rospy.Subscriber("tello/status", TelloStatus, callback=get_battery_percentage)
+rospy.Subscriber('tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
+rospy.Subscriber('desired_pose', numpy_msg(Floats), callback=get_desired_pose)
 # rospy.Subscriber("/cmd_vel_linear_x", Float32, callback=get_cmd_vel_linear_x, queue_size=10)
 # rospy.Subscriber("/cmd_vel_linear_y", Float32, callback=get_cmd_vel_linear_y, queue_size=10)
 # rospy.Subscriber("/cmd_vel_linear_z", Float32, callback=get_cmd_vel_linear_z, queue_size=10)

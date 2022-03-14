@@ -21,7 +21,7 @@ rospy.init_node('imu', anonymous=True)
 
 rate = rospy.Rate(15)
 
-pub_pose_imu = rospy.Publisher('/repub_imu', numpy_msg(Floats), queue_size=10)
+pub_pose_imu = rospy.Publisher('repub_imu', numpy_msg(Floats), queue_size=10)
 # pub_pose_imu = rospy.Publisher('/repub_imu', ImuMsg, queue_size=10)
 # pub_pose_imu = rospy.Publisher('/repub_imu', Twist, queue_size=10)
 # pub_roll = rospy.Publisher('/reroll', Float32, queue_size=10)
@@ -89,7 +89,7 @@ def get_imu_message(imu_msg):
     tello_pose_imu[4] = pitch
     tello_pose_imu[5] = yaw
 
-rospy.Subscriber("/tello/imu", ImuMsg, callback=get_imu_message, queue_size=10)
+rospy.Subscriber("tello/imu", ImuMsg, callback=get_imu_message, queue_size=10)
 
 while not rospy.is_shutdown():
     pub_pose_imu.publish(tello_pose_imu)

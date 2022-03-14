@@ -39,7 +39,7 @@ target_pose = np.zeros((4, 4), dtype=np.float32)
 # pub_target_roll = rospy.Publisher("/target_roll", Float32, queue_size=10)
 # pub_target_pitch = rospy.Publisher("/target_pitch", Float32, queue_size=10)
 # pub_target_yaw = rospy.Publisher("/target_yaw", Float32, queue_size=10)
-pub_target_pose_estimated = rospy.Publisher('/target_pose_estimated', numpy_msg(Floats), queue_size=10)
+pub_target_pose_estimated = rospy.Publisher('target_pose_estimated', numpy_msg(Floats), queue_size=10)
 
 def isRotationMatrix(R):
     Rt = np.transpose(R)
@@ -110,9 +110,9 @@ def get_target_detected_flag(data):
         # target_pitch = math.degrees(target_pitch)
         # target_yaw = math.degrees(target_yaw)
 
-rospy.Subscriber('/transformation_array_positioning', numpy_msg(Floats), callback=get_transformation_array_positioning)
-rospy.Subscriber('/transformation_array_target', numpy_msg(Floats), callback=get_transformation_array_target)
-rospy.Subscriber('/target_detected', Float32, callback=get_target_detected_flag)
+rospy.Subscriber('transformation_array_positioning', numpy_msg(Floats), callback=get_transformation_array_positioning)
+rospy.Subscriber('transformation_array_target', numpy_msg(Floats), callback=get_transformation_array_target)
+rospy.Subscriber('target_detected', Float32, callback=get_target_detected_flag)
 
 while not rospy.is_shutdown():
     if (target_pose[3, 3] != 0):

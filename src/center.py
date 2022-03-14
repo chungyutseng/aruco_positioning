@@ -23,11 +23,11 @@ rate = rospy.Rate(15)
 marker_height = 1.01
 
 # pub_takeoff = rospy.Publisher('/tello/takeoff', EmptyMsg, queue_size=10)
-pub_manual_takeoff = rospy.Publisher('/tello/manual_takeoff', EmptyMsg, queue_size=10)
-pub_desired_pose = rospy.Publisher('/desired_pose', numpy_msg(Floats), queue_size=10)
-pub_vel = rospy.Publisher("/tello/cmd_vel", Twist, queue_size=10)
-pub_VO_on_off = rospy.Publisher("/VO_on_off", Float32, queue_size=10)
-pub_height = rospy.Publisher("/tello_height", Float32, queue_size=10)
+pub_manual_takeoff = rospy.Publisher('tello/manual_takeoff', EmptyMsg, queue_size=10)
+pub_desired_pose = rospy.Publisher('desired_pose', numpy_msg(Floats), queue_size=10)
+pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
+pub_VO_on_off = rospy.Publisher("VO_on_off", Float32, queue_size=10)
+pub_height = rospy.Publisher("tello_height", Float32, queue_size=10)
 # pub_desired_x = rospy.Publisher('/desired_x', Float32, queue_size=10)
 # pub_desired_y = rospy.Publisher('/desired_y', Float32, queue_size=10)
 # pub_desired_z = rospy.Publisher('/desired_z', Float32, queue_size=10)
@@ -72,8 +72,9 @@ def get_marker_detected(data):
 def motion_one():
     global desired_pose
     desired_pose[0] = 0.0 # in meter
-    desired_pose[1] = 0.0 # in meter
-    desired_pose[2] = 1.2 # in meter
+    # desired_pose[1] = -1.0 # in meter
+    desired_pose[1] = -0.8 # in meter
+    desired_pose[2] = 0.0 # in meter
     desired_pose[3] = 0.0 * (math.pi / 180.0) # in radians
 
 def motion_two():
@@ -101,8 +102,8 @@ flag = 0
 time_old = time.time()
 # time_old_VO = time.time()
 
-rospy.Subscriber("/tello/status", TelloStatus, callback=get_height)
-rospy.Subscriber("/marker_detected", Float32, callback=get_marker_detected)
+rospy.Subscriber("tello/status", TelloStatus, callback=get_height)
+rospy.Subscriber("marker_detected", Float32, callback=get_marker_detected)
 
 while not rospy.is_shutdown():
     # time_now_VO = time.time()
@@ -113,8 +114,8 @@ while not rospy.is_shutdown():
         pub_VO_on_off.publish(1.0)
     else:
         pub_VO_on_off.publish(0.0)
-        # pub_vel.publish(vel_msg)
-    motion_two()
+        pub_vel.publish(vel_msg)
+    motion_one()
     pub_desired_pose.publish(desired_pose)
     pub_height.publish(height)
     rate.sleep()

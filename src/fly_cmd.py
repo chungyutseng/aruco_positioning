@@ -8,9 +8,9 @@ from std_msgs.msg import Float32
 
 pre_time = time.time() - time.time()
 
-pub_takeoff = rospy.Publisher('/tello/takeoff', EmptyMsg, queue_size=1)
-pub_land = rospy.Publisher('/tello/land', EmptyMsg, queue_size=1)
-pub_vel_cmd = rospy.Publisher('/tello/cmd_vel_QQQQQ', Twist, queue_size=1)
+pub_takeoff = rospy.Publisher('tello/takeoff', EmptyMsg, queue_size=1)
+pub_land = rospy.Publisher('tello/land', EmptyMsg, queue_size=1)
+pub_vel_cmd = rospy.Publisher('tello/cmd_vel_QQQQQ', Twist, queue_size=1)
 
 command = 0
 
@@ -32,7 +32,7 @@ def cmd():
     global marker_detected_flag
     rospy.init_node('cmd', anonymous=True)
     rospy.Subscriber("keyboard_cmd", Int8, callback=pub_cmd)
-    rospy.Subscriber("/marker_detected", Float32, callback=get_marker_detected_flag)
+    rospy.Subscriber("marker_detected", Float32, callback=get_marker_detected_flag)
     rate = rospy.Rate(100) # 10hz
     while not rospy.is_shutdown():
         if marker_detected_flag == 0.0:
