@@ -20,7 +20,7 @@ rospy.init_node('center', anonymous=True)
 
 rate = rospy.Rate(15)
 
-marker_height = 1.01
+marker_height = 0.8
 
 # pub_takeoff = rospy.Publisher('/tello/takeoff', EmptyMsg, queue_size=10)
 pub_manual_takeoff = rospy.Publisher('tello/manual_takeoff', EmptyMsg, queue_size=10)
@@ -36,7 +36,7 @@ pub_height = rospy.Publisher("tello_height", Float32, queue_size=10)
 
 time.sleep(3)
 pub_manual_takeoff.publish(EmptyMsg())
-time.sleep(1)
+time.sleep(6)
 
 desired_pose = np.zeros((4,), dtype=np.float32)
 
@@ -49,7 +49,7 @@ vel_msg.linear.z = 0.0
 vel_msg.angular.x = 0.0
 vel_msg.angular.y = 0.0
 vel_msg.angular.z = 0.0
-max_z_vel = 100
+max_z_vel = 20
 p_z = 2
 
 marker_detected_flag = 0.0
@@ -71,11 +71,12 @@ def get_marker_detected(data):
 
 def motion_one():
     global desired_pose
-    desired_pose[0] = 0.0 # in meter
+    desired_pose[0] = 0.05 # in meter
     # desired_pose[1] = -1.0 # in meter
-    desired_pose[1] = -0.8 # in meter
-    desired_pose[2] = 0.0 # in meter
-    desired_pose[3] = 0.0 * (math.pi / 180.0) # in radians
+    desired_pose[1] = -0.5 # in meter
+    # desired_pose[2] = 0.1040 # in meter
+    desired_pose[2] = 0.095 # in meter
+    desired_pose[3] = 0 * (math.pi / 180.0) # in radians
 
 def motion_two():
     global flag, time_old
