@@ -64,18 +64,18 @@ parameters = aruco.DetectorParameters_create()
 # board_ids = np.array([[0]], dtype = np.int32)
 # board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
-# board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
-# board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
-#                 np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
-#                 np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
-#                 np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
+board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
+                np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
+                np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
+                np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
 # board_ids = np.array([[10], [11]], dtype = np.int32)
 # board_corners = [np.array([[0.0, 0.0, 0.07], [0.07, 0.0, 0.07], [0.07, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32), 
 #                  np.array([[0.073, 0.0, 0.07], [0.143, 0.0, 0.07], [0.143, 0.0, 0.0], [0.073, 0.0, 0.0]], dtype = np.float32),] # clockwise, beginning from the top-left corner
 
-board_ids = np.array([[11]], dtype = np.int32)
-board_corners = [np.array([[0.0, 0.0, 0.09], [0.09, 0.0, 0.09], [0.09, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+# board_ids = np.array([[11]], dtype = np.int32)
+# board_corners = [np.array([[0.0, 0.0, 0.09], [0.09, 0.0, 0.09], [0.09, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
 board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
@@ -175,8 +175,8 @@ def convert_color_image(ros_image):
         if ids is None:
             ids = np.array([[-1], [-1]], dtype=np.float32)
 
-        if (np.any(ids[:] == 11)):
-        # if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
+        # if (np.any(ids[:] == 11)):
+        if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
         # if (np.any(ids[:] == 10) or np.any(ids[:] == 11)):
             marker_detected_flag = 1.0
 

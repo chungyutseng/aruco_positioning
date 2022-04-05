@@ -21,16 +21,16 @@ rate = rospy.Rate(15)
 current_pose = np.zeros((10,), dtype=np.float32)
 desired_pose = np.zeros((4,), dtype=np.float32)
 
-kp_x = 1.2
-kp_y = 0.65
-kp_z = 1.0
-kp_yaw = 1.2
+kp_x = 1.0
+kp_y = 1.4
+kp_z = 1.2
+kp_yaw = 1.8
 kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
 
-kd_x = 0.3
-kd_y = 0.1
-kd_z = 0.3
-kd_yaw = 0.1
+kd_x = 0.1
+kd_y = 0.5
+kd_z = 0.01
+kd_yaw = 0.5
 kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
 previous_error_x = 0.0
@@ -40,8 +40,8 @@ previous_error_yaw = 0.0
 
 count = 0.0
 
-vel_max_linear = 0.28
-vel_max_angular = 1.0
+vel_max_linear = 0.35
+vel_max_angular = 1.5
 
 vel_min_linear = 0.12
 vel_min_linear_z = 0.15
@@ -168,22 +168,22 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
         if abs(vel_msg.angular.z) > vel_max_angular:
             vel_msg.angular.z = sign(vel_msg.angular.z) * vel_max_angular
 
-        if abs(vel_msg.linear.x) < vel_min_linear * 0.5:
+        if abs(vel_msg.linear.x) < vel_min_linear * 0.4:
             vel_msg.linear.x = 0
         elif abs(vel_msg.linear.x) < vel_min_linear:
             vel_msg.linear.x = sign(vel_msg.linear.x) * vel_min_linear
         
-        if abs(vel_msg.linear.y) < vel_min_linear * 0.5:
+        if abs(vel_msg.linear.y) < vel_min_linear * 0.25:
             vel_msg.linear.y = 0
         elif abs(vel_msg.linear.y) < vel_min_linear:
             vel_msg.linear.y = sign(vel_msg.linear.y) * vel_min_linear
         
-        if abs(vel_msg.linear.z) < vel_min_linear_z * 0.5:
+        if abs(vel_msg.linear.z) < vel_min_linear_z * 0.4:
             vel_msg.linear.z = 0
         elif abs(vel_msg.linear.z) < vel_min_linear_z:
             vel_msg.linear.z = sign(vel_msg.linear.z) * vel_min_linear_z
         
-        if abs(vel_msg.angular.z) < vel_min_angular * 0.5:
+        if abs(vel_msg.angular.z) < vel_min_angular * 0.25:
             vel_msg.angular.z = 0
         elif abs(vel_msg.angular.z) < vel_min_angular:
             vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular

@@ -36,7 +36,7 @@ pub_height = rospy.Publisher("tello_height", Float32, queue_size=10)
 
 time.sleep(3)
 pub_manual_takeoff.publish(EmptyMsg())
-time.sleep(6)
+time.sleep(4)
 
 desired_pose = np.zeros((4,), dtype=np.float32)
 
@@ -71,18 +71,18 @@ def get_marker_detected(data):
 
 def motion_one():
     global desired_pose
-    desired_pose[0] = 0.05 # in meter
+    desired_pose[0] = 0.0 # in meter
     # desired_pose[1] = -1.0 # in meter
-    desired_pose[1] = -0.5 # in meter
+    desired_pose[1] = 0.0 # in meter
     # desired_pose[2] = 0.1040 # in meter
-    desired_pose[2] = 0.095 # in meter
-    desired_pose[3] = 0 * (math.pi / 180.0) # in radians
+    desired_pose[2] = 1.2 # in meter
+    desired_pose[3] = 4 * (math.pi / 180.0) # in radians
 
 def motion_two():
     global flag, time_old
     global desired_pose
     time_now = time.time()
-    if (time_now - time_old) > 15:
+    if (time_now - time_old) > 20:
         if flag == 1:
             flag = 0
         else:
@@ -116,7 +116,7 @@ while not rospy.is_shutdown():
     else:
         pub_VO_on_off.publish(0.0)
         pub_vel.publish(vel_msg)
-    motion_one()
+    motion_two()
     pub_desired_pose.publish(desired_pose)
     pub_height.publish(height)
     rate.sleep()
