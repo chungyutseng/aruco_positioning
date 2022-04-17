@@ -20,6 +20,10 @@ rate = rospy.Rate(15)
 
 current_pose = np.zeros((10,), dtype=np.float32)
 desired_pose = np.zeros((4,), dtype=np.float32)
+cmd_vel_test = np.zeros((6,), dtype=np.float32)
+
+
+pid_internal = np.zeros((8,), dtype=np.float32)
 
 kp_x = 1.0
 kp_y = 1.4
@@ -33,6 +37,10 @@ kd_z = 0.01
 kd_yaw = 0.5
 kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
+
+pid_gain = np.array([kp_x, kp_y, kp_z, kp_yaw, kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
+
+
 previous_error_x = 0.0
 previous_error_y = 0.0
 previous_error_z = 0.0
@@ -40,14 +48,26 @@ previous_error_yaw = 0.0
 
 count = 0.0
 
-vel_max_linear = 0.35
-vel_max_angular = 1.5
+vel_max_linear = 0.8
+vel_max_angular = 0.8
 
-vel_min_linear = 0.12
-vel_min_linear_z = 0.15
-vel_min_angular = 0.3
+vel_min_linear = 0.25
+vel_min_angular = 0.5
+
+# vel_max_linear = 0.35
+# vel_max_angular = 1.5
+
+# vel_min_linear = 0.12
+# vel_min_linear_z = 0.15
+# vel_min_angular = 0.3
 
 pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
+pub_pid_internal = rospy.Publisher('pid_internal', numpy_msg(Floats), queue_size=10)
+pub_cmd_vel_test = rospy.Publisher("cmd_vel_test_array", numpy_msg(Floats), queue_size=10)
+
+
+pub_pid_gain = rospy.Publisher("pid_gain", numpy_msg(Floats), queue_size=10)
+
 
 vel_msg = Twist()
 VO_on_off = 0.0
@@ -68,6 +88,8 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
     global count
     global previous_error_x, previous_error_y, previous_error_z, previous_error_yaw
     global vel_msg
+    global pid_internal
+    global cmd_vel_test
 
     x_p = c_pose[0]
     y_p = c_pose[1]
@@ -138,6 +160,13 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
         vel_msg.linear.x = now_error_x * KP_X + ((now_error_x - previous_error_x) / (1.0/15)) * KD_X
         vel_msg.linear.y = now_error_y * KP_Y + ((now_error_y - previous_error_y) / (1.0/15)) * KD_Y
 
+        ##
+        pid_internal[0] = now_error_x
+        pid_internal[1] = now_error_y
+        pid_internal[4] = previous_error_x
+        pid_internal[5] = previous_error_y
+        ##
+
         previous_error_x = now_error_x
         previous_error_y = now_error_y
 
@@ -146,6 +175,11 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
 
         vel_msg.linear.z = now_error_z * KP_Z + ((now_error_z - previous_error_z) / (1.0/15)) * KD_Z
 
+        ##
+        pid_internal[2] = now_error_z
+        pid_internal[6] = previous_error_z
+        ##
+
         previous_error_z = now_error_z
 
         now_yaw_angle = yaw_a
@@ -153,10 +187,22 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
 
         vel_msg.angular.z = (now_error_yaw * KP_YAW + ((now_error_yaw - previous_error_yaw) / (1.0/15)) * KD_YAW)
 
+        ##
+        pid_internal[3] = now_error_yaw
+        pid_internal[7] = previous_error_yaw
+        ##
+
         previous_error_yaw = now_error_yaw
 
         vel_msg.angular.x = 0
         vel_msg.angular.y = 0
+
+        cmd_vel_test[0] = vel_msg.linear.x
+        cmd_vel_test[1] = vel_msg.linear.y
+        cmd_vel_test[2] = vel_msg.linear.z
+        cmd_vel_test[3] = vel_msg.angular.x
+        cmd_vel_test[4] = vel_msg.angular.y
+        cmd_vel_test[5] = vel_msg.angular.z
 
         sign = functools.partial(math.copysign, 1)
         if abs(vel_msg.linear.x) > vel_max_linear:
@@ -168,32 +214,43 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
         if abs(vel_msg.angular.z) > vel_max_angular:
             vel_msg.angular.z = sign(vel_msg.angular.z) * vel_max_angular
 
-        if abs(vel_msg.linear.x) < vel_min_linear * 0.4:
-            vel_msg.linear.x = 0
-        elif abs(vel_msg.linear.x) < vel_min_linear:
+        if abs(vel_msg.linear.x) < vel_min_linear:
             vel_msg.linear.x = sign(vel_msg.linear.x) * vel_min_linear
-        
-        if abs(vel_msg.linear.y) < vel_min_linear * 0.25:
-            vel_msg.linear.y = 0
-        elif abs(vel_msg.linear.y) < vel_min_linear:
+        if abs(vel_msg.linear.y) < vel_min_linear:
             vel_msg.linear.y = sign(vel_msg.linear.y) * vel_min_linear
-        
-        if abs(vel_msg.linear.z) < vel_min_linear_z * 0.4:
-            vel_msg.linear.z = 0
-        elif abs(vel_msg.linear.z) < vel_min_linear_z:
-            vel_msg.linear.z = sign(vel_msg.linear.z) * vel_min_linear_z
-        
-        if abs(vel_msg.angular.z) < vel_min_angular * 0.25:
-            vel_msg.angular.z = 0
-        elif abs(vel_msg.angular.z) < vel_min_angular:
+        if abs(vel_msg.linear.z) < vel_min_linear:
+            vel_msg.linear.z = sign(vel_msg.linear.z) * vel_min_linear
+        if abs(vel_msg.angular.z) < vel_min_angular:
             vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular
 
-        if abs(now_error_x) < 0.04:
+        # if abs(vel_msg.linear.x) < vel_min_linear * 0.4:
+        #     vel_msg.linear.x = 0
+        # elif abs(vel_msg.linear.x) < vel_min_linear:
+        #     vel_msg.linear.x = sign(vel_msg.linear.x) * vel_min_linear
+        
+        # if abs(vel_msg.linear.y) < vel_min_linear * 0.25:
+        #     vel_msg.linear.y = 0
+        # elif abs(vel_msg.linear.y) < vel_min_linear:
+        #     vel_msg.linear.y = sign(vel_msg.linear.y) * vel_min_linear
+        
+        # if abs(vel_msg.linear.z) < vel_min_linear_z * 0.4:
+        #     vel_msg.linear.z = 0
+        # elif abs(vel_msg.linear.z) < vel_min_linear_z:
+        #     vel_msg.linear.z = sign(vel_msg.linear.z) * vel_min_linear_z
+        
+        # if abs(vel_msg.angular.z) < vel_min_angular * 0.25:
+        #     vel_msg.angular.z = 0
+        # elif abs(vel_msg.angular.z) < vel_min_angular:
+        #     vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular
+
+        if abs(now_error_x) < 0.1:
             vel_msg.linear.x = 0
-        if abs(now_error_y) < 0.04:
+        if abs(now_error_y) < 0.1:
             vel_msg.linear.y = 0
-        if abs(now_error_z) < 0.025:
+        if abs(now_error_z) < 0.1:
             vel_msg.linear.z = 0
+        if abs(now_error_yaw) < 1.5*(math.pi / 180.0):
+            vel_msg.angular.z = 0
 
 rospy.Subscriber('tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
 rospy.Subscriber('desired_pose', numpy_msg(Floats), callback=get_desired_pose)
@@ -203,4 +260,7 @@ while not rospy.is_shutdown():
     pd_controller(current_pose, desired_pose, kp, kd)
     if (VO_on_off == 1.0):
         pub_vel.publish(vel_msg)
+        pub_pid_internal.publish(pid_internal)
+        pub_cmd_vel_test.publish(cmd_vel_test)
+        pub_pid_gain.publish(pid_gain)
     rate.sleep()

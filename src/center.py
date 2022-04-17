@@ -76,13 +76,13 @@ def motion_one():
     desired_pose[1] = 0.0 # in meter
     # desired_pose[2] = 0.1040 # in meter
     desired_pose[2] = 1.2 # in meter
-    desired_pose[3] = 4 * (math.pi / 180.0) # in radians
+    desired_pose[3] = 0 * (math.pi / 180.0) # in radians
 
 def motion_two():
     global flag, time_old
     global desired_pose
     time_now = time.time()
-    if (time_now - time_old) > 20:
+    if (time_now - time_old) > 25:
         if flag == 1:
             flag = 0
         else:

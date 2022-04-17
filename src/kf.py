@@ -81,8 +81,8 @@ X = np.zeros((3, 1), dtype = np.float32)
 A_yaw = np.array([[1.0, dt], [0.0, 1.0]], dtype = np.float32)
 C_yaw = np.array([1.0, 0.0], dtype = np.float32).reshape(1, 2)
 Q_yaw = 0.1 * np.identity(2)
-R_yaw_marker = 2
-R_yaw_imu = 1
+R_yaw_marker = 0.2
+R_yaw_imu = 0.5
 
 P_yaw = 0.2 * np.identity(2)
 X_yaw = np.zeros((2, 1), dtype = np.float32)

@@ -21,8 +21,8 @@ marker_height = 1.01
 marker_offset = 0.08155 # it is the distance between marker 1 and marker 2
 
 calib_path = ""
-camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_E.txt', delimiter = ',')
-camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_E.txt', delimiter = ',')
+camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_C.txt', delimiter = ',')
+camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_C.txt', delimiter = ',')
 
 R_flip = np.zeros((3, 3), dtype = np.float32)
 R_flip[0, 0] = 1
