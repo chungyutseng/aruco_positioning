@@ -20,9 +20,17 @@ marker_size = 0.2
 marker_height = 1.01
 marker_offset = 0.08155 # it is the distance between marker 1 and marker 2
 
-calib_path = ""
-camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_C.txt', delimiter = ',')
-camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_C.txt', delimiter = ',')
+my_namespace=rospy.get_namespace()
+
+if my_namespace=="/drone1/":
+    calib_path = ""
+    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_C.txt', delimiter = ',')
+    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_C.txt', delimiter = ',')
+
+if my_namespace=="/drone2/":
+    calib_path = ""
+    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_C.txt', delimiter = ',')
+    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_C.txt', delimiter = ',')
 
 R_flip = np.zeros((3, 3), dtype = np.float32)
 R_flip[0, 0] = 1
@@ -64,11 +72,17 @@ parameters = aruco.DetectorParameters_create()
 # board_ids = np.array([[0]], dtype = np.int32)
 # board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
-board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
-board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
-                np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
-                np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
-                np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+# drone1 leader; drone2 follower
+if my_namespace=="/drone1/":
+    board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
+    board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
+                    np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
+                    np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
+                    np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+
+if my_namespace=="/drone2/":
+    board_ids = np.array([[11]], dtype = np.int32)
+    board_corners = [np.array([[0.0, 0.0, 0.1], [0.1, 0.0, 0.1], [0.1, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
 # board_ids = np.array([[10], [11]], dtype = np.int32)
 # board_corners = [np.array([[0.0, 0.0, 0.07], [0.07, 0.0, 0.07], [0.07, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32), 
@@ -176,117 +190,230 @@ def convert_color_image(ros_image):
             ids = np.array([[-1], [-1]], dtype=np.float32)
 
         # if (np.any(ids[:] == 11)):
-        if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
-        # if (np.any(ids[:] == 10) or np.any(ids[:] == 11)):
-            marker_detected_flag = 1.0
+        if my_namespace=="/drone1/":
+            if (np.any(ids[:] == 0) or np.any(ids[:] == 1) or np.any(ids[:] == 2) or np.any(ids[:] == 3)):
+            # if (np.any(ids[:] == 10) or np.any(ids[:] == 11)):
+                marker_detected_flag = 1.0
 
-            retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
+                retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
 
-            R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
-            R_tc = R_ct.T
+                R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
+                R_tc = R_ct.T
 
-            pos_camera = -R_tc * np.matrix(tvec)
+                pos_camera = -R_tc * np.matrix(tvec)
 
-            transformation_array_c2m[0] = R_tc[0, 0]
-            transformation_array_c2m[1] = R_tc[0, 1]
-            transformation_array_c2m[2] = R_tc[0, 2]
-            transformation_array_c2m[3] = pos_camera[0] - 0.0
+                transformation_array_c2m[0] = R_tc[0, 0]
+                transformation_array_c2m[1] = R_tc[0, 1]
+                transformation_array_c2m[2] = R_tc[0, 2]
+                transformation_array_c2m[3] = pos_camera[0] - 0.0
 
-            transformation_array_c2m[4] = R_tc[1, 0]
-            transformation_array_c2m[5] = R_tc[1, 1]
-            transformation_array_c2m[6] = R_tc[1, 2]
-            transformation_array_c2m[7] = pos_camera[1] - 1.5
+                transformation_array_c2m[4] = R_tc[1, 0]
+                transformation_array_c2m[5] = R_tc[1, 1]
+                transformation_array_c2m[6] = R_tc[1, 2]
+                transformation_array_c2m[7] = pos_camera[1] - 1.5
 
-            transformation_array_c2m[8] = R_tc[2, 0]
-            transformation_array_c2m[9] = R_tc[2, 1]
-            transformation_array_c2m[10] = R_tc[2, 2]
-            transformation_array_c2m[11] = pos_camera[2] - 1.0
+                transformation_array_c2m[8] = R_tc[2, 0]
+                transformation_array_c2m[9] = R_tc[2, 1]
+                transformation_array_c2m[10] = R_tc[2, 2]
+                transformation_array_c2m[11] = pos_camera[2] - 1.0
 
-            transformation_array_c2m[12] = 0.0
-            transformation_array_c2m[13] = 0.0
-            transformation_array_c2m[14] = 0.0
-            transformation_array_c2m[15] = 1.0         
+                transformation_array_c2m[12] = 0.0
+                transformation_array_c2m[13] = 0.0
+                transformation_array_c2m[14] = 0.0
+                transformation_array_c2m[15] = 1.0         
 
-            roll_camera, pitch_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip * R_tc)
-            
-            roll_camera = math.degrees(roll_camera)
-            pitch_camera = math.degrees(pitch_camera)
-            yaw_camera = math.degrees(yaw_camera)
+                roll_camera, pitch_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip * R_tc)
+                
+                roll_camera = math.degrees(roll_camera)
+                pitch_camera = math.degrees(pitch_camera)
+                yaw_camera = math.degrees(yaw_camera)
 
-            x_camera = pos_camera[0] 
-            y_camera = pos_camera[1] 
-            z_camera = pos_camera[2]
+                x_camera = pos_camera[0] 
+                y_camera = pos_camera[1] 
+                z_camera = pos_camera[2]
 
-            # x_camera, y_camera, z_camera in meter
-            # roll_camera, pitch_camera, yaw_camera in degree
-            tello_pose_marker[0] = x_camera
-            tello_pose_marker[1] = y_camera
-            tello_pose_marker[2] = z_camera
-            tello_pose_marker[3] = roll_camera
-            tello_pose_marker[4] = pitch_camera
-            tello_pose_marker[5] = yaw_camera
+                # x_camera, y_camera, z_camera in meter
+                # roll_camera, pitch_camera, yaw_camera in degree
+                tello_pose_marker[0] = x_camera
+                tello_pose_marker[1] = y_camera
+                tello_pose_marker[2] = z_camera
+                tello_pose_marker[3] = roll_camera
+                tello_pose_marker[4] = pitch_camera
+                tello_pose_marker[5] = yaw_camera
 
-            # x_camera = x_camera - x_offset
-            # y_camera = y_camera - y_offset
-            # z_camera = z_camera - z_offset 
+                # x_camera = x_camera - x_offset
+                # y_camera = y_camera - y_offset
+                # z_camera = z_camera - z_offset 
 
-            str_position = "CAMERA Position x=%4.3f y=%4.3f z=%4.3f"%(x_camera*100, y_camera*100, z_camera*100)
-            str_attitude = "CAMERA Attitude roll=%4.0f pitch=%4.0f yaw=%4.0f"%(roll_camera, pitch_camera, yaw_camera)
-            cmd_vel_drone = "x_vel = %4.3f y_vel = %4.3f z_vel = %4.3f yaw_vel = %4.3f"%(cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.linear.z, cmd_vel.angular.z)
-            cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                str_position = "CAMERA Position x=%4.3f y=%4.3f z=%4.3f"%(x_camera*100, y_camera*100, z_camera*100)
+                str_attitude = "CAMERA Attitude roll=%4.0f pitch=%4.0f yaw=%4.0f"%(roll_camera, pitch_camera, yaw_camera)
+                cmd_vel_drone = "x_vel = %4.3f y_vel = %4.3f z_vel = %4.3f yaw_vel = %4.3f"%(cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.linear.z, cmd_vel.angular.z)
+                cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-            x_position_str = "x = %4.3f"%(current_pose[0]*100)
-            y_position_str = "y = %4.3f"%(current_pose[1]*100)
-            z_position_str = "z = %4.3f"%(current_pose[2]*100)
-            yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
-            cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                x_position_str = "x = %4.3f"%(current_pose[0]*100)
+                y_position_str = "y = %4.3f"%(current_pose[1]*100)
+                z_position_str = "z = %4.3f"%(current_pose[2]*100)
+                yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
+                cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
 
-            d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
-            d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
-            d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
-            d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
-            cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
+                d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
+                d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
+                d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
+                cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
 
-        else:
-            marker_detected_flag = 0.0
-            transformation_array_c2m = np.zeros((16,), dtype=np.float32)
-            str_position = "CAMERA Position x= None y= None z= None"
-            str_attitude = "CAMERA Attitude roll= None pitch= None yaw= None"
-            cmd_vel_drone = "x_vel = None y_vel = None z_vel = None yaw_vel = None"
-            cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+            else:
+                marker_detected_flag = 0.0
+                transformation_array_c2m = np.zeros((16,), dtype=np.float32)
+                str_position = "CAMERA Position x= None y= None z= None"
+                str_attitude = "CAMERA Attitude roll= None pitch= None yaw= None"
+                cmd_vel_drone = "x_vel = None y_vel = None z_vel = None yaw_vel = None"
+                cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-            x_position_str = "x = %4.3f"%(current_pose[0]*100)
-            y_position_str = "y = %4.3f"%(current_pose[1]*100)
-            z_position_str = "z = %4.3f"%(current_pose[2]*100)
-            yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
-            cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                x_position_str = "x = %4.3f"%(current_pose[0]*100)
+                y_position_str = "y = %4.3f"%(current_pose[1]*100)
+                z_position_str = "z = %4.3f"%(current_pose[2]*100)
+                yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
+                cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
 
-            d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
-            d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
-            d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
-            d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
-            cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
-            cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
+                d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
+                d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
+                d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
+                cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
 
-        cv2.namedWindow("Color")
-        cv2.imshow("Color", color_image_append)
+        if my_namespace=="/drone2/":
+            if (np.any(ids[:] == 11)):
+            # if (np.any(ids[:] == 10) or np.any(ids[:] == 11)):
+                marker_detected_flag = 1.0
+
+                retval, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, camera_matrix, camera_distortion, None, None)
+
+                R_ct = np.matrix(cv2.Rodrigues(rvec)[0])
+                R_tc = R_ct.T
+
+                pos_camera = -R_tc * np.matrix(tvec)
+
+                transformation_array_c2m[0] = R_tc[0, 0]
+                transformation_array_c2m[1] = R_tc[0, 1]
+                transformation_array_c2m[2] = R_tc[0, 2]
+                transformation_array_c2m[3] = pos_camera[0] - 0.0
+
+                transformation_array_c2m[4] = R_tc[1, 0]
+                transformation_array_c2m[5] = R_tc[1, 1]
+                transformation_array_c2m[6] = R_tc[1, 2]
+                transformation_array_c2m[7] = pos_camera[1] - 1.5
+
+                transformation_array_c2m[8] = R_tc[2, 0]
+                transformation_array_c2m[9] = R_tc[2, 1]
+                transformation_array_c2m[10] = R_tc[2, 2]
+                transformation_array_c2m[11] = pos_camera[2] - 1.0
+
+                transformation_array_c2m[12] = 0.0
+                transformation_array_c2m[13] = 0.0
+                transformation_array_c2m[14] = 0.0
+                transformation_array_c2m[15] = 1.0         
+
+                roll_camera, pitch_camera, yaw_camera = rotationMatrixToEulerAngles(R_flip * R_tc)
+                
+                roll_camera = math.degrees(roll_camera)
+                pitch_camera = math.degrees(pitch_camera)
+                yaw_camera = math.degrees(yaw_camera)
+
+                x_camera = pos_camera[0] 
+                y_camera = pos_camera[1] 
+                z_camera = pos_camera[2]
+
+                # x_camera, y_camera, z_camera in meter
+                # roll_camera, pitch_camera, yaw_camera in degree
+                tello_pose_marker[0] = x_camera
+                tello_pose_marker[1] = y_camera
+                tello_pose_marker[2] = z_camera
+                tello_pose_marker[3] = roll_camera
+                tello_pose_marker[4] = pitch_camera
+                tello_pose_marker[5] = yaw_camera
+
+                # x_camera = x_camera - x_offset
+                # y_camera = y_camera - y_offset
+                # z_camera = z_camera - z_offset 
+
+                str_position = "CAMERA Position x=%4.3f y=%4.3f z=%4.3f"%(x_camera*100, y_camera*100, z_camera*100)
+                str_attitude = "CAMERA Attitude roll=%4.0f pitch=%4.0f yaw=%4.0f"%(roll_camera, pitch_camera, yaw_camera)
+                cmd_vel_drone = "x_vel = %4.3f y_vel = %4.3f z_vel = %4.3f yaw_vel = %4.3f"%(cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.linear.z, cmd_vel.angular.z)
+                cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+                x_position_str = "x = %4.3f"%(current_pose[0]*100)
+                y_position_str = "y = %4.3f"%(current_pose[1]*100)
+                z_position_str = "z = %4.3f"%(current_pose[2]*100)
+                yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
+                cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
+                d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
+                d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
+                d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
+                d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
+                cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
+            else:
+                marker_detected_flag = 0.0
+                transformation_array_c2m = np.zeros((16,), dtype=np.float32)
+                str_position = "CAMERA Position x= None y= None z= None"
+                str_attitude = "CAMERA Attitude roll= None pitch= None yaw= None"
+                cmd_vel_drone = "x_vel = None y_vel = None z_vel = None yaw_vel = None"
+                cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+                x_position_str = "x = %4.3f"%(current_pose[0]*100)
+                y_position_str = "y = %4.3f"%(current_pose[1]*100)
+                z_position_str = "z = %4.3f"%(current_pose[2]*100)
+                yaw_angle_str = "yaw = %4.3f"%(current_pose[3])
+                cv2.putText(color_image_append, str(battery_percentage), (1060, 150), font, 1.5, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, x_position_str, (1010, 260), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, y_position_str, (1010, 300), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, z_position_str, (1010, 340), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, yaw_angle_str, (1010, 380), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
+                d_x_position_str = "x = %4.3f"%(desired_pose[0]*100)
+                d_y_position_str = "y = %4.3f"%(desired_pose[1]*100)
+                d_z_position_str = "z = %4.3f"%(desired_pose[2]*100)
+                d_yaw_angle_str = "yaw = %4.3f"%(math.degrees(desired_pose[3]))
+                cv2.putText(color_image_append, d_x_position_str, (1010, 500), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_y_position_str, (1010, 540), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_z_position_str, (1010, 580), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, d_yaw_angle_str, (1010, 620), font, 0.8, (0, 64, 255), 2, cv2.LINE_AA)
+
+        # cv2.namedWindow("Color")
+        # cv2.imshow("Color", color_image_append)
+        cv2.namedWindow(my_namespace)
+        cv2.imshow(my_namespace, color_image_append)
         cv2.waitKey(10)
         
     except CvBridgeError as e:

@@ -14,7 +14,7 @@ import functools
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 
-rospy.init_node('controller', anonymous=True)
+rospy.init_node('pd_controller', anonymous=True)
 
 rate = rospy.Rate(15)
 
@@ -25,21 +25,35 @@ cmd_vel_test = np.zeros((6,), dtype=np.float32)
 
 pid_internal = np.zeros((8,), dtype=np.float32)
 
-kp_x = 1.0
-kp_y = 1.4
-kp_z = 1.2
-kp_yaw = 1.8
-kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
+my_namespace=rospy.get_namespace()
 
-kd_x = 0.1
-kd_y = 0.5
-kd_z = 0.01
-kd_yaw = 0.5
-kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
+if my_namespace=="/drone1/":
+    kp_x = 1.0
+    kp_y = 1.4
+    kp_z = 1.2
+    kp_yaw = 1.8
+    kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
 
+    kd_x = 0.1
+    kd_y = 0.5
+    kd_z = 0.01
+    kd_yaw = 0.5
+    kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
+
+if my_namespace=="/drone2/":
+    kp_x = 1.0
+    kp_y = 1.4
+    kp_z = 1.2
+    kp_yaw = 1.8
+    kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
+
+    kd_x = 0.1
+    kd_y = 0.5
+    kd_z = 0.01
+    kd_yaw = 0.5
+    kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
 pid_gain = np.array([kp_x, kp_y, kp_z, kp_yaw, kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
-
 
 previous_error_x = 0.0
 previous_error_y = 0.0
@@ -48,11 +62,25 @@ previous_error_yaw = 0.0
 
 count = 0.0
 
-vel_max_linear = 0.8
-vel_max_angular = 0.8
+if my_namespace=="/drone1/":
+    vel_max_linear = 0.8
+    vel_max_angular = 0.8
 
-vel_min_linear = 0.25
-vel_min_angular = 0.5
+    vel_min_linear = 0.25
+    vel_min_angular = 0.5
+
+    zero_vel_zone_linear_hs = 0.1
+    zero_vel_zone_angular_hs = 1.5
+
+if my_namespace=="/drone2/":
+    vel_max_linear = 0.8
+    vel_max_angular = 0.8
+
+    vel_min_linear = 0.25
+    vel_min_angular = 0.5
+
+    zero_vel_zone_linear_hs = 0.1
+    zero_vel_zone_angular_hs = 1.5
 
 # vel_max_linear = 0.35
 # vel_max_angular = 1.5
@@ -65,12 +93,10 @@ pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
 pub_pid_internal = rospy.Publisher('pid_internal', numpy_msg(Floats), queue_size=10)
 pub_cmd_vel_test = rospy.Publisher("cmd_vel_test_array", numpy_msg(Floats), queue_size=10)
 
-
 pub_pid_gain = rospy.Publisher("pid_gain", numpy_msg(Floats), queue_size=10)
 
-
 vel_msg = Twist()
-VO_on_off = 0.0
+pdc_on = 0.0
 
 def get_kf_position(data):
     global current_pose
@@ -80,9 +106,9 @@ def get_desired_pose(data):
     global desired_pose
     desired_pose = data.data
 
-def get_VO_on_off(data):
-    global VO_on_off
-    VO_on_off = data.data
+def get_pdc_on(data):
+    global pdc_on
+    pdc_on = data.data
 
 def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
     global count
@@ -243,22 +269,22 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
         # elif abs(vel_msg.angular.z) < vel_min_angular:
         #     vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular
 
-        if abs(now_error_x) < 0.1:
+        if abs(now_error_x) < zero_vel_zone_linear_hs:
             vel_msg.linear.x = 0
-        if abs(now_error_y) < 0.1:
+        if abs(now_error_y) < zero_vel_zone_linear_hs:
             vel_msg.linear.y = 0
-        if abs(now_error_z) < 0.1:
+        if abs(now_error_z) < zero_vel_zone_linear_hs:
             vel_msg.linear.z = 0
-        if abs(now_error_yaw) < 1.5*(math.pi / 180.0):
+        if abs(now_error_yaw) < zero_vel_zone_angular_hs*(math.pi / 180.0):
             vel_msg.angular.z = 0
 
 rospy.Subscriber('tello_pose_kf', numpy_msg(Floats), callback=get_kf_position)
 rospy.Subscriber('desired_pose', numpy_msg(Floats), callback=get_desired_pose)
-rospy.Subscriber('VO_on_off', Float32, callback=get_VO_on_off)
+rospy.Subscriber('pdc_on', Float32, callback=get_pdc_on)
 
 while not rospy.is_shutdown():
     pd_controller(current_pose, desired_pose, kp, kd)
-    if (VO_on_off == 1.0):
+    if (pdc_on == 1.0):
         pub_vel.publish(vel_msg)
         pub_pid_internal.publish(pid_internal)
         pub_cmd_vel_test.publish(cmd_vel_test)
