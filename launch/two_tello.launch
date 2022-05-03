@@ -3,6 +3,8 @@
 
 	<node pkg="aruco_positioning" type="new_center.py" name="new_center" output="screen"/>
 	<node pkg="aruco_positioning" type="reference_publisher.py" name="reference_publisher" output="screen"/>
+	<node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/>
+	<node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/>
 
 	<group ns="drone1">
 		<node pkg="image_transport" name="republish" type="republish" output="screen" args="h264 in:=tello/image_raw raw out:=raw_image" />
@@ -10,8 +12,8 @@
 		<!-- <1node pkg="image_transport" name="republish" type="republish" output="screen" args="raw in:=image_raw compressed out:=image_raw" /> -->
 		<!-- <1node pkg="image_transport" name="image_compressed1" type="republish" args="h264 in:=image_raw raw out:=raw_image" /> -->
 
-		<node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/>
-		<node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/>
+		<!-- <node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/> -->
+		<!-- <node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/> -->
 		<node pkg="aruco_positioning" type="aruco_positioning.py" name="aruco_positioning" output="screen"/>
 		<node pkg="aruco_positioning" type="pd_controller.py" name="pd_controller" output="screen"/>
 		<node pkg="aruco_positioning" type="p_controller.py" name="p_controller" output="screen"/>
@@ -37,8 +39,8 @@
 		<!-- <1node pkg="image_transport" name="republish" type="republish" output="screen" args="raw in:=image_raw compressed out:=image_raw" /> -->
 		<!-- <1node pkg="image_transport" name="image_compressed1" type="republish" args="h264 in:=image_raw raw out:=raw_image" /> -->
 
-		<node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/>
-		<node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/>
+		<!-- <node pkg="aruco_positioning" type="keyboard_input" name="keyboard_input" output="screen"/> -->
+		<!-- <node pkg="aruco_positioning" type="fly_cmd.py" name="cmd" output="screen"/> -->
 		<node pkg="aruco_positioning" type="aruco_positioning.py" name="aruco_positioning" output="screen"/>
 		<node pkg="aruco_positioning" type="pd_controller.py" name="pd_controller" output="screen"/>
 		<node pkg="aruco_positioning" type="p_controller.py" name="p_controller" output="screen"/>
