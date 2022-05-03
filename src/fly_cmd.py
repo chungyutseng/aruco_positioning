@@ -58,8 +58,9 @@ def cmd():
                 # if command == 108:
                 #     pub_land.publish()
                 velocity = 0.5
-                if command == 116:
-                    pub_takeoff.publish()
+                # if command == 116:
+                #     pub_takeoff.publish()
+                
                 # elif command == 108:
                 #     pub_land.publish()
                 elif command == 119: #w forward 

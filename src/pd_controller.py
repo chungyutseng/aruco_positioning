@@ -86,13 +86,6 @@ if my_namespace=="/drone2/":
     zero_vel_zone_linear_hs_z = 0.035
     zero_vel_zone_angular_hs = 1.5
 
-# vel_max_linear = 0.35
-# vel_max_angular = 1.5
-
-# vel_min_linear = 0.12
-# vel_min_linear_z = 0.15
-# vel_min_angular = 0.3
-
 pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
 pub_pid_internal = rospy.Publisher('pid_internal', numpy_msg(Floats), queue_size=10)
 pub_cmd_vel_test = rospy.Publisher("cmd_vel_test_array", numpy_msg(Floats), queue_size=10)
@@ -252,26 +245,6 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
             vel_msg.linear.z = sign(vel_msg.linear.z) * vel_min_linear
         if abs(vel_msg.angular.z) < vel_min_angular:
             vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular
-
-        # if abs(vel_msg.linear.x) < vel_min_linear * 0.4:
-        #     vel_msg.linear.x = 0
-        # elif abs(vel_msg.linear.x) < vel_min_linear:
-        #     vel_msg.linear.x = sign(vel_msg.linear.x) * vel_min_linear
-        
-        # if abs(vel_msg.linear.y) < vel_min_linear * 0.25:
-        #     vel_msg.linear.y = 0
-        # elif abs(vel_msg.linear.y) < vel_min_linear:
-        #     vel_msg.linear.y = sign(vel_msg.linear.y) * vel_min_linear
-        
-        # if abs(vel_msg.linear.z) < vel_min_linear_z * 0.4:
-        #     vel_msg.linear.z = 0
-        # elif abs(vel_msg.linear.z) < vel_min_linear_z:
-        #     vel_msg.linear.z = sign(vel_msg.linear.z) * vel_min_linear_z
-        
-        # if abs(vel_msg.angular.z) < vel_min_angular * 0.25:
-        #     vel_msg.angular.z = 0
-        # elif abs(vel_msg.angular.z) < vel_min_angular:
-        #     vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular
 
         if abs(now_error_x) < zero_vel_zone_linear_hs_x:
             vel_msg.linear.x = 0

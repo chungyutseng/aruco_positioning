@@ -172,13 +172,6 @@ def get_imu_message(imu_msg):
     drone_y.correction()
     drone_z.correction()
     drone_yaw.correction_yaw()
-    # drone_x.update_v(imu_msg.angular_velocity.x)
-    # drone_y.update_v(imu_msg.angular_velocity.y)
-    # drone_z.update_v(imu_msg.angular_velocity.z)
-    # drone_x.update_v(imu_msg.linear.x)
-    # drone_y.update_v(imu_msg.linear.y)
-    # drone_z.update_v(imu_msg.linear.z)
-    # drone_yaw.update_yaw_imu(imu_msg.angular.x)
     drone_x.update_v(temp_imu[0])
     drone_y.update_v(temp_imu[1])
     drone_z.update_v(temp_imu[2])
@@ -195,14 +188,7 @@ def get_marker_message(marker_msg):
     drone_y.update_p(temp[1])
     drone_z.update_p(temp[2])
     drone_yaw.update_yaw_marker(temp[4])
-    # drone_x.update_p(marker_msg.linear.x)
-    # drone_y.update_p(marker_msg.linear.y)
-    # drone_z.update_p(marker_msg.linear.z)
-    # drone_yaw.update_yaw_marker(marker_msg.angular.y)
 
-# rospy.Subscriber("/repub_imu", ImuMsg, callback=get_imu_message, queue_size=10)
-# rospy.Subscriber("/repub_imu", Twist, callback=get_imu_message, queue_size=10)
-# rospy.Subscriber("/tello_pose_marker", Twist, callback=get_marker_message, queue_size=10)
 rospy.Subscriber("repub_imu", numpy_msg(Floats), callback=get_imu_message)
 rospy.Subscriber("tello_pose_marker", numpy_msg(Floats), callback=get_marker_message)
 
@@ -215,11 +201,6 @@ while not rospy.is_shutdown():
     drone_y.predict()
     drone_z.predict()
     drone_yaw.predict_yaw()
-    # tello_pose_kf = Twist()
-    # tello_pose_kf.linear.x = drone_x.X[0, 0]
-    # tello_pose_kf.linear.y = drone_y.X[0, 0]
-    # tello_pose_kf.linear.z = drone_z.X[0, 0]
-    # tello_pose_kf.angular.z = drone_yaw.X_yaw[0, 0]
     tello_pose_kf[0] = drone_x.X[0, 0]
     tello_pose_kf[1] = drone_y.X[0, 0]
     tello_pose_kf[2] = drone_z.X[0, 0]
