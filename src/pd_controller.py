@@ -69,17 +69,21 @@ if my_namespace=="/drone1/":
     vel_min_linear = 0.25
     vel_min_angular = 0.5
 
-    zero_vel_zone_linear_hs = 0.1
+    zero_vel_zone_linear_hs_x = 0.1
+    zero_vel_zone_linear_hs_y = 0.1
+    zero_vel_zone_linear_hs_z = 0.1
     zero_vel_zone_angular_hs = 1.5
 
 if my_namespace=="/drone2/":
-    vel_max_linear = 0.8
+    vel_max_linear = 0.5
     vel_max_angular = 0.8
 
     vel_min_linear = 0.25
     vel_min_angular = 0.5
 
-    zero_vel_zone_linear_hs = 0.1
+    zero_vel_zone_linear_hs_x = 0.06
+    zero_vel_zone_linear_hs_y = 0.08
+    zero_vel_zone_linear_hs_z = 0.035
     zero_vel_zone_angular_hs = 1.5
 
 # vel_max_linear = 0.35
@@ -269,11 +273,11 @@ def pd_controller(c_pose, d_pose, kp_gain, kd_gain):
         # elif abs(vel_msg.angular.z) < vel_min_angular:
         #     vel_msg.angular.z = sign(vel_msg.angular.z) * vel_min_angular
 
-        if abs(now_error_x) < zero_vel_zone_linear_hs:
+        if abs(now_error_x) < zero_vel_zone_linear_hs_x:
             vel_msg.linear.x = 0
-        if abs(now_error_y) < zero_vel_zone_linear_hs:
+        if abs(now_error_y) < zero_vel_zone_linear_hs_y:
             vel_msg.linear.y = 0
-        if abs(now_error_z) < zero_vel_zone_linear_hs:
+        if abs(now_error_z) < zero_vel_zone_linear_hs_z:
             vel_msg.linear.z = 0
         if abs(now_error_yaw) < zero_vel_zone_angular_hs*(math.pi / 180.0):
             vel_msg.angular.z = 0

@@ -16,7 +16,7 @@ from rospy_tutorials.msg import Floats
 from tello_driver.msg import TelloStatus
 import functools
 
-rospy.init_node('center', anonymous=True)
+rospy.init_node('new_center', anonymous=True)
 
 rate = rospy.Rate(15)
 
@@ -27,13 +27,19 @@ pub_pdc_drone1 = rospy.Publisher("/drone1/pdc_on", Float32, queue_size=10)
 pub_pc_drone2 = rospy.Publisher("/drone2/pc_on", Float32, queue_size=10)
 pub_pdc_drone2 = rospy.Publisher("/drone2/pdc_on", Float32, queue_size=10)
 
+# two drones are hovering at their zore-velocity zones (original)
+# stage one
+pub_stage_one = rospy.Publisher("/stage_one", Float32, queue_size=10)
+
 time.sleep(5)
 
+# manual take off (stay on the ground)
 pub_drone1_mt.publish()
 pub_drone2_mt.publish()
 
 time.sleep(5)
 
+# two drones take off with p controllers
 pub_pc_drone1.publish(1.0)
 pub_pdc_drone1.publish(0.0)
 pub_pc_drone2.publish(1.0)
@@ -41,6 +47,8 @@ pub_pdc_drone2.publish(0.0)
 
 time.sleep(3)
 
+# two drones hover within their zero-velocity zones
+pub_stage_one.publish(1.0)
 pub_pc_drone1.publish(0.0)
 pub_pdc_drone1.publish(1.0)
 pub_pc_drone2.publish(0.0)

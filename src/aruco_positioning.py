@@ -29,8 +29,8 @@ if my_namespace=="/drone1/":
 
 if my_namespace=="/drone2/":
     calib_path = ""
-    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_C.txt', delimiter = ',')
-    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_C.txt', delimiter = ',')
+    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_Y.txt', delimiter = ',')
+    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_Y.txt', delimiter = ',')
 
 R_flip = np.zeros((3, 3), dtype = np.float32)
 R_flip[0, 0] = 1
@@ -82,7 +82,7 @@ if my_namespace=="/drone1/":
 
 if my_namespace=="/drone2/":
     board_ids = np.array([[11]], dtype = np.int32)
-    board_corners = [np.array([[0.0, 0.0, 0.1], [0.1, 0.0, 0.1], [0.1, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+    board_corners = [np.array([[0.0, 0.0, 0.09], [0.09, 0.0, 0.09], [0.09, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
 # board_ids = np.array([[10], [11]], dtype = np.int32)
 # board_corners = [np.array([[0.0, 0.0, 0.07], [0.07, 0.0, 0.07], [0.07, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32), 
@@ -248,9 +248,9 @@ def convert_color_image(ros_image):
                 str_position = "CAMERA Position x=%4.3f y=%4.3f z=%4.3f"%(x_camera*100, y_camera*100, z_camera*100)
                 str_attitude = "CAMERA Attitude roll=%4.0f pitch=%4.0f yaw=%4.0f"%(roll_camera, pitch_camera, yaw_camera)
                 cmd_vel_drone = "x_vel = %4.3f y_vel = %4.3f z_vel = %4.3f yaw_vel = %4.3f"%(cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.linear.z, cmd_vel.angular.z)
-                cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
                 x_position_str = "x = %4.3f"%(current_pose[0]*100)
                 y_position_str = "y = %4.3f"%(current_pose[1]*100)
@@ -277,9 +277,9 @@ def convert_color_image(ros_image):
                 str_position = "CAMERA Position x= None y= None z= None"
                 str_attitude = "CAMERA Attitude roll= None pitch= None yaw= None"
                 cmd_vel_drone = "x_vel = None y_vel = None z_vel = None yaw_vel = None"
-                cv2.putText(color_image, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(color_image, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(color_image, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, str_position, (0, 200), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, str_attitude, (0, 250), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(color_image_append, cmd_vel_drone, (0, 300), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
                 x_position_str = "x = %4.3f"%(current_pose[0]*100)
                 y_position_str = "y = %4.3f"%(current_pose[1]*100)
