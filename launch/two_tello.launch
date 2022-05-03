@@ -2,6 +2,7 @@
 <launch>
 
 	<node pkg="aruco_positioning" type="new_center.py" name="new_center" output="screen"/>
+	<node pkg="aruco_positioning" type="reference_publisher.py" name="reference_publisher" output="screen"/>
 
 	<group ns="drone1">
 		<node pkg="image_transport" name="republish" type="republish" output="screen" args="h264 in:=tello/image_raw raw out:=raw_image" />
