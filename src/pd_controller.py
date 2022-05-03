@@ -27,6 +27,8 @@ pid_internal = np.zeros((8,), dtype=np.float32)
 
 my_namespace=rospy.get_namespace()
 
+small_marker = 0.0
+
 if my_namespace=="/drone1/":
     kp_x = 1.0
     kp_y = 1.4
@@ -41,17 +43,31 @@ if my_namespace=="/drone1/":
     kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
 if my_namespace=="/drone2/":
-    kp_x = 1.0
-    kp_y = 1.4
-    kp_z = 1.2
-    kp_yaw = 1.8
-    kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
 
-    kd_x = 0.1
-    kd_y = 0.5
-    kd_z = 0.01
-    kd_yaw = 0.5
-    kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
+    if small_marker == 1.0:
+        kp_x = 1.0
+        kp_y = 1.4
+        kp_z = 1.2
+        kp_yaw = 1.8
+        kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
+
+        kd_x = 0.1
+        kd_y = 0.5
+        kd_z = 0.1
+        kd_yaw = 0.5
+        kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
+    else:
+        kp_x = 1.0
+        kp_y = 1.4
+        kp_z = 1.2
+        kp_yaw = 1.8
+        kp = np.array([kp_x, kp_y, kp_z, kp_yaw], dtype=np.float32)
+
+        kd_x = 0.1
+        kd_y = 0.5
+        kd_z = 0.01
+        kd_yaw = 0.5
+        kd = np.array([kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
 pid_gain = np.array([kp_x, kp_y, kp_z, kp_yaw, kd_x, kd_y, kd_z, kd_yaw], dtype=np.float32)
 
@@ -75,16 +91,29 @@ if my_namespace=="/drone1/":
     zero_vel_zone_angular_hs = 1.5
 
 if my_namespace=="/drone2/":
-    vel_max_linear = 0.5
-    vel_max_angular = 0.8
 
-    vel_min_linear = 0.25
-    vel_min_angular = 0.5
+    if small_marker == 1.0:
+        vel_max_linear = 0.4
+        vel_max_angular = 0.65
 
-    zero_vel_zone_linear_hs_x = 0.06
-    zero_vel_zone_linear_hs_y = 0.08
-    zero_vel_zone_linear_hs_z = 0.035
-    zero_vel_zone_angular_hs = 1.5
+        vel_min_linear = 0.23
+        vel_min_angular = 0.5
+
+        zero_vel_zone_linear_hs_x = 0.08
+        zero_vel_zone_linear_hs_y = 0.08
+        zero_vel_zone_linear_hs_z = 0.08
+        zero_vel_zone_angular_hs = 1.5
+    else small_marker == 0.0:
+        vel_max_linear = 0.8
+        vel_max_angular = 0.8
+
+        vel_min_linear = 0.25
+        vel_min_angular = 0.5
+
+        zero_vel_zone_linear_hs_x = 0.1
+        zero_vel_zone_linear_hs_y = 0.1
+        zero_vel_zone_linear_hs_z = 0.1
+        zero_vel_zone_angular_hs = 1.5
 
 pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
 pub_pid_internal = rospy.Publisher('pid_internal', numpy_msg(Floats), queue_size=10)

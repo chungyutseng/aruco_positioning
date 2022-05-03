@@ -37,19 +37,19 @@ time.sleep(5)
 pub_drone1_mt.publish()
 pub_drone2_mt.publish()
 
-time.sleep(5)
+time.sleep(3.5)
 
 # two drones take off with p controllers
-pub_pc_drone1.publish(1.0)
+pub_pc_drone1.publish(0.0)
 pub_pdc_drone1.publish(0.0)
 pub_pc_drone2.publish(1.0)
 pub_pdc_drone2.publish(0.0)
 
-time.sleep(3)
+time.sleep(6)
 
 # two drones hover within their zero-velocity zones
 pub_stage_one.publish(1.0)
 pub_pc_drone1.publish(0.0)
-pub_pdc_drone1.publish(1.0)
+pub_pdc_drone1.publish(0.0)
 pub_pc_drone2.publish(0.0)
 pub_pdc_drone2.publish(1.0)

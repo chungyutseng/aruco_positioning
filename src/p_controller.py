@@ -24,11 +24,11 @@ pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
 pub_height = rospy.Publisher("height", Float32, queue_size=10)
 
 height = 0.0
-desired_height = 1.1
+desired_height = 1.25
 
-kp = 1
+kp = 2.1
 
-vel_max_linear = 0.8
+vel_max_linear = 2.3
 vel_min_linear = 0.25
 
 vel_msg = Twist()
