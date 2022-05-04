@@ -28,8 +28,8 @@
 
 		<node pkg="rosbag" type="record" name="myrosbag" output="screen" args="-e '/drone1/(.*)' -x '/drone(.*)/raw_image' -o 'drone1'" />
 		<include file="$(find tello_driver)/launch/one_tello.launch">
-			<!-- <arg name="net_card_name" value="wlp48s0" /> -->
-			<arg name="net_card_name" value="wlx08beac1fec81" />
+			<arg name="net_card_name" value="wlp48s0" />
+			<!-- <arg name="net_card_name" value="wlx08beac1fec81" /> -->
 		</include>
 	</group>
 
@@ -55,9 +55,8 @@
 
 		<node pkg="rosbag" type="record" name="myrosbag" output="screen" args="-e '/drone2/(.*)' -x '/drone(.*)/raw_image' -o 'drone2'" />
 		<include file="$(find tello_driver)/launch/one_tello.launch">
-			<!-- <arg name="net_card_name" value="wlx801f02d14605" /> -->
-			<!-- <arg name="net_card_name" value="wlx08beac1fec81" /> -->
-			<arg name="net_card_name" value="wlp48s0" />
+			<!-- <arg name="net_card_name" value="wlp48s0" /> -->
+			<arg name="net_card_name" value="wlx08beac1fec81" />
 		</include>
 	</group>
 

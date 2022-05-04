@@ -29,7 +29,8 @@ pub_pdc_drone2 = rospy.Publisher("/drone2/pdc_on", Float32, queue_size=10)
 
 # two drones are hovering at their zore-velocity zones (original)
 # stage one
-pub_stage_one = rospy.Publisher("/stage_one", Float32, queue_size=10)
+pub_stage_one_drone_one = rospy.Publisher("/stage_one_drone_one", Float32, queue_size=10)
+pub_stage_one_drone_two = rospy.Publisher("/stage_one_drone_two", Float32, queue_size=10)
 
 time.sleep(5)
 
@@ -39,17 +40,22 @@ pub_drone2_mt.publish()
 
 time.sleep(3.5)
 
-# two drones take off with p controllers
-pub_pc_drone1.publish(0.0)
+# leader first takes off with p controllers and
+# stays within its zero-veloity zone with pd controller
+pub_pc_drone1.publish(1.0)
 pub_pdc_drone1.publish(0.0)
+time.sleep(3.5)
+pub_stage_one_drone_one.publish(1.0)
+pub_pc_drone1.publish(0.0)
+pub_pdc_drone1.publish(1.0)
+
+time.sleep(4)
+
+# follower then takes off with p controllers and
+# stays within its zero-veloity zone with pd controller
 pub_pc_drone2.publish(1.0)
 pub_pdc_drone2.publish(0.0)
-
-time.sleep(6)
-
-# two drones hover within their zero-velocity zones
-pub_stage_one.publish(1.0)
-pub_pc_drone1.publish(0.0)
-pub_pdc_drone1.publish(0.0)
+time.sleep(3.5)
+pub_stage_one_drone_two.publish(1.0)
 pub_pc_drone2.publish(0.0)
 pub_pdc_drone2.publish(1.0)

@@ -16,7 +16,7 @@ rospy.init_node("aruco_positioning", anonymous=True)
 
 rate = rospy.Rate(15)
 
-small_marker = 0.0
+small_marker = 1.0
 
 my_namespace=rospy.get_namespace()
 
