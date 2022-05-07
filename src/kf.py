@@ -21,6 +21,10 @@ rospy.init_node('kf', anonymous=True)
 
 rate = rospy.Rate(15)
 
+small_marker = 1.0
+
+my_namespace=rospy.get_namespace()
+
 ###########################
 # past_t = time.time()
 ###########################
@@ -30,12 +34,11 @@ rate = rospy.Rate(15)
 # x, y, z, and yaw
 # x, y, z in meter; yaw in degrees
 tello_pose_kf = np.zeros((13,), dtype=np.float32)
-temp_imu = np.zeros((6,), dtype=np.float32)
+# temp_imu = np.zeros((6,), dtype=np.float32)
 
 pub_pose_kf = rospy.Publisher('tello_pose_kf', numpy_msg(Floats), queue_size=10)
 
 dt = 1.0/15
-
 
 #####################################
          # for x, y, and z #
@@ -166,31 +169,73 @@ drone_yaw = Kalman_filter_yaw(Q_yaw, R_yaw_marker, R_yaw_imu, P_yaw, X_yaw)
 
 def get_imu_message(imu_msg):
     global drone_x, drone_y, drone_z, drone_yaw
-    global temp_imu
+    # global temp_imu
     temp_imu = imu_msg.data
-    drone_x.correction()
-    drone_y.correction()
-    drone_z.correction()
-    drone_yaw.correction_yaw()
-    drone_x.update_v(temp_imu[0])
-    drone_y.update_v(temp_imu[1])
-    drone_z.update_v(temp_imu[2])
-    drone_yaw.update_yaw_imu(temp_imu[3])
+
+    if my_namespace=="/drone1/":
+        drone_x.correction()
+        drone_y.correction()
+        drone_z.correction()
+        drone_yaw.correction_yaw()
+        drone_x.update_v(temp_imu[0])
+        drone_y.update_v(temp_imu[1])
+        drone_z.update_v(temp_imu[2])
+        drone_yaw.update_yaw_imu(temp_imu[3])
+
+    if my_namespace=="/drone2/":
+        if small_marker == 0.0:
+            drone_x.correction()
+            drone_y.correction()
+            drone_z.correction()
+            drone_yaw.correction_yaw()
+            drone_x.update_v(temp_imu[0])
+            drone_y.update_v(temp_imu[1])
+            drone_z.update_v(temp_imu[2])
+            drone_yaw.update_yaw_imu(temp_imu[3])
 
 def get_marker_message(marker_msg):
     global drone_x, drone_y, drone_z, drone_yaw
     temp = marker_msg.data
-    drone_x.correction()
-    drone_y.correction()
-    drone_z.correction()
-    drone_yaw.correction_yaw()
-    drone_x.update_p(temp[0])
-    drone_y.update_p(temp[1])
-    drone_z.update_p(temp[2])
-    drone_yaw.update_yaw_marker(temp[4])
+
+    if my_namespace=="/drone1/":
+        drone_x.correction()
+        drone_y.correction()
+        drone_z.correction()
+        drone_yaw.correction_yaw()
+        drone_x.update_p(temp[0])
+        drone_y.update_p(temp[1])
+        drone_z.update_p(temp[2])
+        drone_yaw.update_yaw_marker(temp[4])
+
+    if my_namespace=="/drone2/":
+        if small_marker == 0.0:
+            drone_x.correction()
+            drone_y.correction()
+            drone_z.correction()
+            drone_yaw.correction_yaw()
+            drone_x.update_p(temp[0])
+            drone_y.update_p(temp[1])
+            drone_z.update_p(temp[2])
+            drone_yaw.update_yaw_marker(temp[4])
+
+def get_marker_lp_message(marker_lp_msg):
+    global drone_x, drone_y, drone_z, drone_yaw
+    temp = marker_lp_msg.data
+
+    if my_namespace=="/drone2/":
+        if small_marker == 1.0:
+            drone_x.correction()
+            drone_y.correction()
+            drone_z.correction()
+            drone_yaw.correction_yaw()
+            drone_x.update_p(temp[0])
+            drone_y.update_p(temp[1])
+            drone_z.update_p(temp[2])
+            drone_yaw.update_yaw_marker(temp[4])
 
 rospy.Subscriber("repub_imu", numpy_msg(Floats), callback=get_imu_message)
 rospy.Subscriber("tello_pose_marker", numpy_msg(Floats), callback=get_marker_message)
+rospy.Subscriber("tello_pose_marker_lp", numpy_msg(Floats), callback=get_marker_lp_message)
 
 while not rospy.is_shutdown():
     drone_x.correction()
@@ -211,8 +256,8 @@ while not rospy.is_shutdown():
     tello_pose_kf[7] = drone_y.X[2, 0] # y velocity drift
     tello_pose_kf[8] = drone_z.X[1, 0] # z velocity
     tello_pose_kf[9] = drone_z.X[2, 0] # z velocity drift
-    tello_pose_kf[10] = temp_imu[0]
-    tello_pose_kf[11] = temp_imu[1]
-    tello_pose_kf[12] = temp_imu[2]
+    # tello_pose_kf[10] = temp_imu[0]
+    # tello_pose_kf[11] = temp_imu[1]
+    # tello_pose_kf[12] = temp_imu[2]
     pub_pose_kf.publish(tello_pose_kf)
     rate.sleep()
