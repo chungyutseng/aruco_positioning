@@ -26,7 +26,7 @@ desired_pose_drone_two = np.zeros((4,), dtype=np.float32)
 stage_one_drone_one_flag = 0.0
 stage_one_drone_two_flag = 0.0
 
-small_marker = 1.0
+small_marker = 0.0
 
 pub_desired_pose_drone_one = rospy.Publisher("/drone1/desired_pose", numpy_msg(Floats), queue_size=10)
 pub_desired_pose_drone_two = rospy.Publisher("/drone2/desired_pose", numpy_msg(Floats), queue_size=10)
@@ -47,12 +47,12 @@ def stage_one_reference():
     
     if small_marker == 1.0:
         desired_pose_drone_two[0] =  0.03
-        desired_pose_drone_two[1] = -0.60
+        desired_pose_drone_two[1] = -0.70
         desired_pose_drone_two[2] =  0.10
         desired_pose_drone_two[3] =  0.0
     else:
         desired_pose_drone_two[0] =  0.0
-        desired_pose_drone_two[1] = -0.5
+        desired_pose_drone_two[1] = -0.6
         desired_pose_drone_two[2] =  1.4
         desired_pose_drone_two[3] =  0.0
 

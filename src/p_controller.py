@@ -32,6 +32,11 @@ vel_max_linear = 1.7
 vel_min_linear = 0.35
 
 vel_msg = Twist()
+vel_msg.linear.x = 0
+vel_msg.linear.y = 0
+vel_msg.angular.x = 0
+vel_msg.angular.y = 0
+vel_msg.angular.z = 0
 pc_on = 0.0
 
 def get_pc_on(data):

@@ -21,7 +21,7 @@ rospy.init_node('kf', anonymous=True)
 
 rate = rospy.Rate(15)
 
-small_marker = 0.0
+# small_marker = 0.0
 
 my_namespace=rospy.get_namespace()
 
@@ -171,63 +171,38 @@ def get_imu_message(imu_msg):
     global drone_x, drone_y, drone_z, drone_yaw
     # global temp_imu
     temp_imu = imu_msg.data
-
-    if my_namespace=="/drone1/":
-        # drone_x.correction()
-        # drone_y.correction()
-        # drone_z.correction()
-        # drone_yaw.correction_yaw()
-        drone_x.update_v(temp_imu[0])
-        drone_y.update_v(temp_imu[1])
-        drone_z.update_v(temp_imu[2])
-        drone_yaw.update_yaw_imu(temp_imu[3])
-
-    if my_namespace=="/drone2/":
-        if small_marker == 0.0:
-            # drone_x.correction()
-            # drone_y.correction()
-            # drone_z.correction()
-            # drone_yaw.correction_yaw()
-            drone_x.update_v(temp_imu[0])
-            drone_y.update_v(temp_imu[1])
-            drone_z.update_v(temp_imu[2])
-            drone_yaw.update_yaw_imu(temp_imu[3])
+    drone_x.correction()
+    drone_y.correction()
+    drone_z.correction()
+    drone_yaw.correction_yaw()
+    drone_x.update_v(temp_imu[0])
+    drone_y.update_v(temp_imu[1])
+    drone_z.update_v(temp_imu[2])
+    drone_yaw.update_yaw_imu(temp_imu[3])
 
 def get_marker_message(marker_msg):
     global drone_x, drone_y, drone_z, drone_yaw
     temp = marker_msg.data
 
     if my_namespace=="/drone1/":
-        # drone_x.correction()
-        # drone_y.correction()
-        # drone_z.correction()
-        # drone_yaw.correction_yaw()
+        drone_x.correction()
+        drone_y.correction()
+        drone_z.correction()
+        drone_yaw.correction_yaw()
         drone_x.update_p(temp[0])
         drone_y.update_p(temp[1])
         drone_z.update_p(temp[2])
         drone_yaw.update_yaw_marker(temp[4])
-
-    if my_namespace=="/drone2/":
-        if small_marker == 0.0:
-            # drone_x.correction()
-            # drone_y.correction()
-            # drone_z.correction()
-            # drone_yaw.correction_yaw()
-            drone_x.update_p(temp[0])
-            drone_y.update_p(temp[1])
-            drone_z.update_p(temp[2])
-            drone_yaw.update_yaw_marker(temp[4])
 
 def get_marker_lp_message(marker_lp_msg):
     global drone_x, drone_y, drone_z, drone_yaw
     temp = marker_lp_msg.data
 
     if my_namespace=="/drone2/":
-        if small_marker == 1.0:
-            # drone_x.correction()
-            # drone_y.correction()
-            # drone_z.correction()
-            # drone_yaw.correction_yaw()
+            drone_x.correction()
+            drone_y.correction()
+            drone_z.correction()
+            drone_yaw.correction_yaw()
             drone_x.update_p(temp[0])
             drone_y.update_p(temp[1])
             drone_z.update_p(temp[2])
@@ -238,10 +213,10 @@ rospy.Subscriber("tello_pose_marker", numpy_msg(Floats), callback=get_marker_mes
 rospy.Subscriber("tello_pose_marker_lp", numpy_msg(Floats), callback=get_marker_lp_message)
 
 while not rospy.is_shutdown():
-    # drone_x.correction()
-    # drone_y.correction()
-    # drone_z.correction()
-    # drone_yaw.correction_yaw()
+    drone_x.correction()
+    drone_y.correction()
+    drone_z.correction()
+    drone_yaw.correction_yaw()
     drone_x.predict()
     drone_y.predict()
     drone_z.predict()

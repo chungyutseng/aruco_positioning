@@ -27,7 +27,7 @@ pid_internal = np.zeros((8,), dtype=np.float32)
 
 my_namespace=rospy.get_namespace()
 
-small_marker = 1.0
+small_marker = 0.0
 
 if my_namespace=="/drone1/":
     kp_x = 1.0
@@ -93,11 +93,11 @@ if my_namespace=="/drone1/":
 if my_namespace=="/drone2/":
 
     if small_marker == 1.0:
-        vel_max_linear = 0.4
+        vel_max_linear = 0.35
         vel_max_angular = 0.65
 
         vel_min_linear = 0.23
-        vel_min_angular = 0.5
+        vel_min_angular = 0.4
 
         zero_vel_zone_linear_hs_x = 0.08
         zero_vel_zone_linear_hs_y = 0.08
