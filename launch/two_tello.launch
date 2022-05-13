@@ -21,8 +21,8 @@
 		<!-- <1node pkg="aruco_positioning" type="center.py" name="center" output="screen"/> -->
 
 		<node pkg="aruco_positioning" type="repub_imu.py" name="repub_imu" output="screen"/>
-		<node pkg="aruco_positioning" type="kf_1.py" name="kf" output="screen"/>
-		<node pkg="aruco_positioning" type="lowpass_filter_3.py" name="lowpass_filter" output="screen"/>
+		<node pkg="aruco_positioning" type="kf.py" name="kf" output="screen"/>
+		<!-- <node pkg="aruco_positioning" type="lowpass_filter_3.py" name="lowpass_filter" output="screen"/> -->
 		<!-- <1node pkg="keyboard_control_tello" type="keyboard_input_old" name="keyboard_input_old" output="screen"/> -->
 		<!-- <1node pkg="keyboard_control_tello" type="fly_cmd.py" name="cmd" output="screen"/> -->
 
@@ -48,8 +48,8 @@
 		<!-- <1node pkg="aruco_positioning" type="center.py" name="center" output="screen"/> -->
 
 		<node pkg="aruco_positioning" type="repub_imu.py" name="repub_imu" output="screen"/>
-		<node pkg="aruco_positioning" type="kf_1.py" name="kf" output="screen"/>
-		<node pkg="aruco_positioning" type="lowpass_filter_3.py" name="lowpass_filter" output="screen"/>
+		<node pkg="aruco_positioning" type="kf.py" name="kf" output="screen"/>
+		<node pkg="aruco_positioning" type="lowpass_filter_5.py" name="lowpass_filter" output="screen"/>
 
     	<!-- <1node pkg="aruco_positioning" type="detect_target.py" name="detect_target" output="screen"/> -->
     	<!-- <1node pkg="aruco_positioning" type="calculate_target_pose.py" name="calculate_target_pose" output="screen"/> -->

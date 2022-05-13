@@ -22,13 +22,13 @@ my_namespace=rospy.get_namespace()
 
 if my_namespace=="/drone1/":
     calib_path = ""
-    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_C.txt', delimiter = ',')
-    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_C.txt', delimiter = ',')
+    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_B.txt', delimiter = ',')
+    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_B.txt', delimiter = ',')
 
 if my_namespace=="/drone2/":
     calib_path = ""
-    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_B.txt', delimiter = ',')
-    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_B.txt', delimiter = ',')
+    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_E.txt', delimiter = ',')
+    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_E.txt', delimiter = ',')
 
 R_flip = np.zeros((3, 3), dtype = np.float32)
 R_flip[0, 0] = 1

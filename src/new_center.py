@@ -35,8 +35,8 @@ pub_stage_one_drone_two = rospy.Publisher("/stage_one_drone_two", Float32, queue
 time.sleep(5)
 
 # manual take off (stay on the ground)
-# pub_drone1_mt.publish()
-# pub_drone2_mt.publish()
+pub_drone1_mt.publish()
+pub_drone2_mt.publish()
 
 time.sleep(3.5)
 # time.sleep(50)

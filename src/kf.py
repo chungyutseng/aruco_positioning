@@ -54,8 +54,13 @@ Q_x_vel = 0.01
 Q_x_vel_drift = 0.0001
 Q_x = np.array([[Q_x_pos, 0.0, 0.0], [0.0, Q_x_vel, 0.0], [0.0, 0.0, Q_x_vel_drift]], dtype = np.float32)
 
-R_position_x = 1.5
-R_velocity_x = 1
+if my_namespace=="/drone1/":
+    R_position_x = 1.5
+    R_velocity_x = 1
+
+if my_namespace=="/drone2/":
+    R_position_x = 8
+    R_velocity_x = 1
 
 # Q_y = 0.1 * np.identity(3)
 Q_y_pos = 0.01
@@ -63,8 +68,13 @@ Q_y_vel = 0.01
 Q_y_vel_drift = 0.0001
 Q_y = np.array([[Q_y_pos, 0.0, 0.0], [0.0, Q_y_vel, 0.0], [0.0, 0.0, Q_y_vel_drift]], dtype = np.float32)
 
-R_position_y = 1
-R_velocity_y = 1
+if my_namespace=="/drone1/":
+    R_position_y = 1
+    R_velocity_y = 1
+
+if my_namespace=="/drone2/":
+    R_position_y = 3
+    R_velocity_y = 1
 
 # Q_z = 0.1 * np.identity(3)
 Q_z_pos = 0.001
@@ -72,8 +82,13 @@ Q_z_vel = 0.001
 Q_z_vel_drift = 0.0000001
 Q_z = np.array([[Q_z_pos, 0.0, 0.0], [0.0, Q_z_vel, 0.0], [0.0, 0.0, Q_z_vel_drift]], dtype = np.float32)
 
-R_position_z = 1.5
-R_velocity_z = 1
+if my_namespace=="/drone1/":
+    R_position_z = 1.5
+    R_velocity_z = 1
+
+if my_namespace=="/drone2/":
+    R_position_z = 8
+    R_velocity_z = 1
 
 P = 0.2 * np.identity(3)
 X = np.zeros((3, 1), dtype = np.float32)
@@ -84,8 +99,14 @@ X = np.zeros((3, 1), dtype = np.float32)
 A_yaw = np.array([[1.0, dt], [0.0, 1.0]], dtype = np.float32)
 C_yaw = np.array([1.0, 0.0], dtype = np.float32).reshape(1, 2)
 Q_yaw = 0.1 * np.identity(2)
-R_yaw_marker = 0.2
-R_yaw_imu = 0.5
+
+if my_namespace=="/drone1/":
+    R_yaw_marker = 0.2
+    R_yaw_imu = 0.5
+
+if my_namespace=="/drone2/":
+    R_yaw_marker = 10
+    R_yaw_imu = 5
 
 P_yaw = 0.2 * np.identity(2)
 X_yaw = np.zeros((2, 1), dtype = np.float32)
@@ -216,7 +237,7 @@ def get_marker_message(marker_msg):
             drone_x.update_p(temp[0])
             drone_y.update_p(temp[1])
             drone_z.update_p(temp[2])
-            drone_yaw.update_yaw_marker(temp[4])
+            # drone_yaw.update_yaw_marker(temp[4])
 
 def get_marker_lp_message(marker_lp_msg):
     global drone_x, drone_y, drone_z, drone_yaw
@@ -228,9 +249,9 @@ def get_marker_lp_message(marker_lp_msg):
             # drone_y.correction()
             # drone_z.correction()
             # drone_yaw.correction_yaw()
-            drone_x.update_p(temp[0])
-            drone_y.update_p(temp[1])
-            drone_z.update_p(temp[2])
+            # drone_x.update_p(temp[0])
+            # drone_y.update_p(temp[1])
+            # drone_z.update_p(temp[2])
             drone_yaw.update_yaw_marker(temp[4])
 
 rospy.Subscriber("repub_imu", numpy_msg(Floats), callback=get_imu_message)
