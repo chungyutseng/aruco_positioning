@@ -56,22 +56,24 @@ aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 parameters = aruco.DetectorParameters_create()
 
 if my_namespace=="/drone1/":
-    board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
+    board_ids = np.array([[0], [1], [2], [3], [4]], dtype = np.int32)
     board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
                     np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
                     np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
-                    np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+                    np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32),
+                    np.array([[0.281, 1.5, 1.45], [0.481, 1.5, 1.45], [0.481, 1.5, 1.25], [0.281, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
 if my_namespace=="/drone2/":
     if small_marker == 1.0:
         board_ids = np.array([[11]], dtype = np.int32)
         board_corners = [np.array([[0.0, 0.0, 0.09], [0.09, 0.0, 0.09], [0.09, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype = np.float32)] # clockwise, beginning from the top-left corner
     else:
-        board_ids = np.array([[0], [1], [2], [3]], dtype = np.int32)
+        board_ids = np.array([[0], [1], [2], [3], [4]], dtype = np.int32)
         board_corners = [np.array([[0.0, 1.5, 1.2], [0.2, 1.5, 1.2], [0.2, 1.5, 1.0], [0.0, 1.5, 1.0]], dtype = np.float32), 
                         np.array([[0.2815, 1.5, 1.2], [0.4815, 1.5, 1.2], [0.4815, 1.5, 1.0], [0.2815, 1.5, 1.0]], dtype = np.float32),
                         np.array([[0.0, 1.5, 0.972], [0.2, 1.5, 0.972], [0.2, 1.5, 0.772], [0.0, 1.5, 0.772]], dtype = np.float32),
-                        np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
+                        np.array([[0.0, 1.5, 1.45], [0.2, 1.5, 1.45], [0.2, 1.5, 1.25], [0.0, 1.5, 1.25]], dtype = np.float32),
+                        np.array([[0.281, 1.5, 1.45], [0.481, 1.5, 1.45], [0.481, 1.5, 1.25], [0.281, 1.5, 1.25]], dtype = np.float32)] # clockwise, beginning from the top-left corner
 
 board = aruco.Board_create(board_corners, aruco_dict, board_ids)
 
