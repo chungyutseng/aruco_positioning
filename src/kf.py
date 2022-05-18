@@ -38,6 +38,8 @@ tello_pose_kf = np.zeros((13,), dtype=np.float32)
 
 pub_pose_kf = rospy.Publisher('tello_pose_kf', numpy_msg(Floats), queue_size=10)
 
+pub_kf_R_value = rospy.Publisher('kf_R_value', numpy_msg(Floats), queue_size=10)
+
 dt = 1.0/15
 
 #####################################
@@ -105,8 +107,11 @@ if my_namespace=="/drone1/":
     R_yaw_imu = 0.5
 
 if my_namespace=="/drone2/":
-    R_yaw_marker = 10
-    R_yaw_imu = 5
+    R_yaw_marker = 0.5
+    R_yaw_imu = 0.5
+
+kf_R_value = np.array([R_position_x, R_velocity_x, R_position_y, R_velocity_y, R_position_z, R_velocity_z, R_yaw_marker, R_yaw_imu], dtype=np.float32)
+pub_kf_R_value.publish(kf_R_value)
 
 P_yaw = 0.2 * np.identity(2)
 X_yaw = np.zeros((2, 1), dtype = np.float32)
@@ -244,7 +249,7 @@ def get_marker_lp_message(marker_lp_msg):
     temp = marker_lp_msg.data
 
     if my_namespace=="/drone2/":
-        if small_marker == 1.0:
+        if small_marker == 0.0:
             # drone_x.correction()
             # drone_y.correction()
             # drone_z.correction()

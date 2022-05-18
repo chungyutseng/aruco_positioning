@@ -97,7 +97,7 @@ if my_namespace=="/drone2/":
         vel_max_angular = 0.65
 
         vel_min_linear = 0.23
-        vel_min_angular = 0.4
+        vel_min_angular = 0.35
 
         zero_vel_zone_linear_hs_x = 0.08
         zero_vel_zone_linear_hs_y = 0.08
@@ -115,11 +115,19 @@ if my_namespace=="/drone2/":
         zero_vel_zone_linear_hs_z = 0.1
         zero_vel_zone_angular_hs = 1.5
 
+zero_velocity = np.array([zero_vel_zone_linear_hs_x, zero_vel_zone_linear_hs_y, zero_vel_zone_linear_hs_z, zero_vel_zone_angular_hs], dtype=np.float32)
+velocity_limit = np.array([vel_max_linear, vel_max_angular, vel_min_linear, vel_min_angular], dtype=np.float32)
+
 pub_vel = rospy.Publisher("tello/cmd_vel", Twist, queue_size=10)
 pub_pid_internal = rospy.Publisher('pid_internal', numpy_msg(Floats), queue_size=10)
 pub_cmd_vel_test = rospy.Publisher("cmd_vel_test_array", numpy_msg(Floats), queue_size=10)
 
 pub_pid_gain = rospy.Publisher("pid_gain", numpy_msg(Floats), queue_size=10)
+pub_zero_velocity = rospy.Publisher("zero_velocity", numpy_msg(Floats), queue_size=10)
+pub_velocity_limit = rospy.Publisher("velocity_limit", numpy_msg(Floats), queue_size=10)
+
+pub_zero_velocity.publish(zero_velocity)
+pub_velocity_limit.publish(velocity_limit)
 
 vel_msg = Twist()
 pdc_on = 0.0

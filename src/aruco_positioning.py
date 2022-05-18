@@ -27,8 +27,8 @@ if my_namespace=="/drone1/":
 
 if my_namespace=="/drone2/":
     calib_path = ""
-    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_B.txt', delimiter = ',')
-    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_B.txt', delimiter = ',')
+    camera_matrix = np.loadtxt('/home/chungyu/.ros/cameraMatrix_A.txt', delimiter = ',')
+    camera_distortion = np.loadtxt('/home/chungyu/.ros/cameraDistortion_A.txt', delimiter = ',')
 
 R_flip = np.zeros((3, 3), dtype = np.float32)
 R_flip[0, 0] = 1
